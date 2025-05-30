@@ -95,7 +95,4 @@ This should rarely be necessary. If it is, you can update their version in `buil
 * [ ] examples
 
 # Windows TODO
-* [ ] Vendor the dependencies that have characters in their paths that aren't supported on Windows
-* [ ] Consider doing the same for dependenies that have symlinks so that we don't have to tell people to enable dev mode on Windows
-  * If we do this, then clear the global and local cache and make sure it works after
 * [ ] Get building on Windows, make sure cross compile works both ways and resulting binaries work

@@ -98,10 +98,12 @@ pub fn build(
         lib.addIncludePath(b.dependency("ibus", .{}).path("src"));
 
         // They depend on the GLib headers, which require some configuration
-        const glib = b.dependency("glib", .{});
-        lib.addIncludePath(glib.path("."));
-        lib.addIncludePath(glib.path("glib"));
-        lib.addIncludePath(glib.path("gmodule"));
+        lib.addIncludePath(b.path("deps/glib/upstream/include"));
+        lib.addIncludePath(b.path("deps/glib/upstream/include/glib"));
+        lib.addIncludePath(b.path("deps/glib/upstream/include/gmodule"));
+        lib.addIncludePath(b.path("deps/glib/cached/include"));
+        lib.addIncludePath(b.path("deps/glib/cached/include/glib"));
+        lib.addIncludePath(b.path("deps/glib/cached/include/gmodule"));
 
         const glib_config = b.addConfigHeader(.{
             .style = .{ .cmake = b.path("deps/glib/glibconfig.h.in") },
@@ -112,7 +114,7 @@ pub fn build(
         // Configure glib
         {
             // Defines
-            const version_string = build_zon.dependencies.glib.version;
+            const version_string = @import("../deps/glib/info.zon").version;
             const version = comptime std.SemanticVersion.parse(version_string) catch unreachable;
             glib_config.addValues(.{
                 .GLIB_HAVE_ALLOCA_H = true,
@@ -262,7 +264,9 @@ pub fn build(
         }
 
         lib.addConfigHeader(b.addConfigHeader(.{
-            .style = .{ .autoconf_at = glib.path("glib/gversionmacros.h.in") },
+            .style = .{
+                .autoconf_at = b.path("deps/glib/upstream/include/glib/gversionmacros.h.in"),
+            },
             .include_path = "glib/gversionmacros.h",
         }, .{
             .GLIB_VERSIONS = @embedFile("../deps/glib/glib_versions.h"),
@@ -416,11 +420,9 @@ pub fn build(
 
     // Provide the direct rendering manager headers
     {
-        const drm = b.dependency("drm", .{});
-        lib.addIncludePath(drm.path("."));
-        lib.addIncludePath(drm.path("include/drm"));
-        const mesa = b.dependency("mesa", .{});
-        lib.addIncludePath(mesa.path("src/gbm/main"));
+        lib.addIncludePath(b.path("deps/drm/include"));
+        lib.addIncludePath(b.path("deps/drm/include/drm"));
+        lib.addIncludePath(b.path("deps/gbm/include"));
     }
 
     // Provide the alsa headers

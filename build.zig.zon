@@ -46,12 +46,6 @@
             .url = "https://github.com/ibus/ibus/releases/download/1.5.32/ibus-1.5.32.tar.gz",
             .hash = "N-V-__8AADqspgFDvy12L2K2kbcOVJukO_srdGXLV_ppgnuC",
         },
-        // Contains symlinks, requires "Developer Mode" on Windows
-        .glib = .{
-            .version = "2.85.0",
-            .url = "https://gitlab.gnome.org/GNOME/glib/-/archive/2.85.0/glib-2.85.0.tar.gz",
-            .hash = "N-V-__8AABTpGwNxGTV8W-9XAEikF5f2eu-F7KgzCDv9DKKf",
-        },
         .usb = .{
             .url = "https://github.com/libusb/libusb/archive/a61afe5f75d969c4561a1d0ad753aa23cee6329a.zip",
             .hash = "N-V-__8AAGT5GgAxQXXIen0EleLF0xfjZZMkR7soefwO0s7E",
@@ -106,16 +100,6 @@
             .version = "16.2.0",
             .api_version = "12", // From `meson.build`, does not directly track version!
             .protocol_version = "35", // From `meson.build`, does not directly track version!
-        },
-        // Contains symlinks, requires "Developer Mode" on Windows
-        .drm = .{
-            .url = "https://gitlab.freedesktop.org/mesa/libdrm/-/archive/libdrm-2.4.124/libdrm-libdrm-2.4.124.tar.gz",
-            .hash = "N-V-__8AAEb1NgB9UCYQMh12DMaS3yP6u1M8L7Ajud2y_Icu",
-        },
-        // Contains symlinks, requires "Developer Mode" on Windows
-        .mesa = .{
-            .url = "https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-25.0.7/mesa-mesa-25.0.7.tar.gz",
-            .hash = "N-V-__8AADdnABFX-KSE_CLcnRvYTz00uXsSaRXjgG44W41i",
         },
         .alsa = .{
             .url = "https://github.com/alsa-project/alsa-lib/archive/refs/tags/v1.2.14.tar.gz",
