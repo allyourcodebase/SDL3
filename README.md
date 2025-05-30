@@ -84,7 +84,7 @@ When adding support for a new platform, please follow the existing conventions a
 
 # Updating Other Dependencies
 
-This should rarely be necessary. If it is, you can update their version in `build.zig.zon`, and then double check if any manual work was done to get them to build in `deps`.
+This should rarely be necessary. If it is, you can update their version in `build.zig.zon` if present, and any relevant files in `/deps` if present.
 
 # TODO
 * [ ] dynapi toggle
@@ -93,3 +93,9 @@ This should rarely be necessary. If it is, you can update their version in `buil
 * [ ] add build options for enabling/disabling subsystems, and changing so names
 * [ ] allow using system versions of dependencies if specified as build flag
 * [ ] examples
+
+# Windows TODO
+* [ ] Vendor the dependencies that have characters in their paths that aren't supported on Windows
+* [ ] Consider doing the same for dependenies that have symlinks so that we don't have to tell people to enable dev mode on Windows
+  * If we do this, then clear the global and local cache and make sure it works after
+* [ ] Get building on Windows, make sure cross compile works both ways and resulting binaries work

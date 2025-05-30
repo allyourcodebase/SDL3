@@ -348,8 +348,7 @@ pub fn build(
 
     // Provide the liburing headers
     {
-        const uring = b.dependency("uring", .{});
-        lib.addIncludePath(uring.path("src/include"));
+        lib.addIncludePath(b.path("deps/liburing/include"));
         lib.addConfigHeader(b.addConfigHeader(.{
             .style = .{ .autoconf_undef = b.path("deps/liburing/compat.h.in") },
             .include_path = "liburing/compat.h",
@@ -372,7 +371,6 @@ pub fn build(
             .IO_URING_VERSION_MAJOR = @as(i64, version.major),
             .IO_URING_VERSION_MINOR = @as(i64, version.minor),
         }));
-        lib.addIncludePath(b.path("deps/liburing/include"));
     }
 
     // Provide the pipewire headers
@@ -436,10 +434,9 @@ pub fn build(
         lib.addIncludePath(b.path("deps/alsa/include"));
     }
 
-    // Provide other headers that don't require any special handling
+    // Provide upstream headers that don't require any special handling
     lib.addIncludePath(b.dependency("egl", .{}).path("api"));
     lib.addIncludePath(b.dependency("opengl", .{}).path("api"));
-    lib.addIncludePath(b.dependency("systemd", .{}).path("src/libudev/"));
     lib.addIncludePath(b.dependency("xkbcommon", .{}).path("include"));
     lib.addIncludePath(b.dependency("xorgproto", .{}).path("include"));
     lib.addIncludePath(b.dependency("xext", .{}).path("include"));
@@ -452,8 +449,9 @@ pub fn build(
     lib.addIncludePath(b.dependency("jack", .{}).path("common"));
     lib.addIncludePath(b.dependency("sndio", .{}).path("libsndio"));
 
-    // Include other stub headers
+    // Include vendored headers that don't require any special handling
     lib.addIncludePath(b.path("deps/xcb/include"));
+    lib.addIncludePath(b.path("deps/udev/include"));
 
     // Add the Linux specific source files
     {

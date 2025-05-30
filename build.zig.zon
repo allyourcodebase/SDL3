@@ -5,16 +5,8 @@
     .minimum_zig_version = "0.15.0-dev.388+05e217607",
     .dependencies = .{
         .sdl = .{
-            // XXX: ...
-            // After updating, run `zig build wayland-scanner`
-            // .url = "https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.2.14.tar.gz",
-            // .hash = "N-V-__8AAHRriwPslozjEw46IksOzPlNxJRXM087krt8ynXh",
-            .path = "../SDL",
-        },
-        // Linux headers, see `deps/*/README.md` if present when updating
-        .systemd = .{
-            .url = "https://github.com/systemd/systemd/archive/refs/tags/v256.13.tar.gz",
-            .hash = "N-V-__8AAF8JsQQn9zEaQfmtqqO6coe1s088jmeSCKHLnCgN",
+            .url = "https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.2.14.tar.gz",
+            .hash = "N-V-__8AAHRriwPslozjEw46IksOzPlNxJRXM087krt8ynXh",
         },
         .dbus = .{
             .version = "1.16.0",
@@ -54,6 +46,7 @@
             .url = "https://github.com/ibus/ibus/releases/download/1.5.32/ibus-1.5.32.tar.gz",
             .hash = "N-V-__8AADqspgFDvy12L2K2kbcOVJukO_srdGXLV_ppgnuC",
         },
+        // Contains symlinks, requires "Developer Mode" on Windows
         .glib = .{
             .version = "2.85.0",
             .url = "https://gitlab.gnome.org/GNOME/glib/-/archive/2.85.0/glib-2.85.0.tar.gz",
@@ -93,11 +86,6 @@
             .hash = "N-V-__8AAEG5BAAsZkN2QXLyeuqTnHEOXHHUOGPC9azQ7zq8",
             .version = "0.2.3",
         },
-        .uring = .{
-            .url = "https://github.com/axboe/liburing/archive/refs/tags/liburing-2.10-rc1.tar.gz",
-            .hash = "N-V-__8AANscHwC4UHopb1W0QWYwjNLWlkDp4wD_KNdZiEr9",
-            .version = "2.10",
-        },
         .opengl = .{
             .url = "https://github.com/KhronosGroup/OpenGL-Registry/archive/200cea4030cb49d3e40677379e6368a5f0e8c27b.zip",
             .hash = "N-V-__8AAGJE5QqpMdB7CdsJRTzpYhbtgDgfqfd_ZbcaCTsD",
@@ -114,15 +102,17 @@
         },
         .pulseaudio = .{
             .url = "https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/archive/v16.2/pulseaudio-v16.2.tar.gz",
-            .hash = "N-V-__8AADiK2wBbQBbppKI9s1sR8vTGLV1mhn44OEYxyPD4",
+            .hash = "N-V-__8AAH-J2wA1QFgeIKK0hLveAjq3mNnOJb96xak4HFqx",
             .version = "16.2.0",
             .api_version = "12", // From `meson.build`, does not directly track version!
             .protocol_version = "35", // From `meson.build`, does not directly track version!
         },
+        // Contains symlinks, requires "Developer Mode" on Windows
         .drm = .{
             .url = "https://gitlab.freedesktop.org/mesa/libdrm/-/archive/libdrm-2.4.124/libdrm-libdrm-2.4.124.tar.gz",
             .hash = "N-V-__8AAEb1NgB9UCYQMh12DMaS3yP6u1M8L7Ajud2y_Icu",
         },
+        // Contains symlinks, requires "Developer Mode" on Windows
         .mesa = .{
             .url = "https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-25.0.7/mesa-mesa-25.0.7.tar.gz",
             .hash = "N-V-__8AADdnABFX-KSE_CLcnRvYTz00uXsSaRXjgG44W41i",
