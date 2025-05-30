@@ -399,23 +399,29 @@ pub fn build(
     // Provide the pulseaudio headers
     {
         @setEvalBranchQuota(2000);
-        const pulseaudio = b.dependency("pulseaudio", .{});
-        lib.addIncludePath(pulseaudio.path("src"));
-        const version_string = build_zon.dependencies.pulseaudio.version;
-        const version = comptime std.SemanticVersion.parse(version_string) catch unreachable;
-        const api_version_string = build_zon.dependencies.pulseaudio.api_version;
-        const api_version = comptime std.fmt.parseInt(u32, api_version_string, 10) catch unreachable;
-        const protocol_version_string = build_zon.dependencies.pulseaudio.protocol_version;
-        const protocol_version = comptime std.fmt.parseInt(u32, protocol_version_string, 10) catch unreachable;
-        lib.addConfigHeader(b.addConfigHeader(.{
-            .style = .{ .cmake = pulseaudio.path("src/pulse/version.h.in") },
-            .include_path = "pulse/version.h",
-        }, .{
-            .PA_MAJOR = @as(i64, version.major),
-            .PA_MINOR = @as(i64, version.minor),
-            .PA_API_VERSION = api_version,
-            .PA_PROTOCOL_VERSION = protocol_version,
-        }));
+        // Workaround for cross compilation, see comment in `build.zig.zon`
+        const pulseaudio_name = switch (@import("builtin").os.tag) {
+            .windows => "pulseaudio_windows",
+            else => "pulseaudio",
+        };
+        if (b.lazyDependency(pulseaudio_name, .{})) |pulseaudio| {
+            lib.addIncludePath(pulseaudio.path("src"));
+            const version_string = build_zon.dependencies.pulseaudio.version;
+            const version = comptime std.SemanticVersion.parse(version_string) catch unreachable;
+            const api_version_string = build_zon.dependencies.pulseaudio.api_version;
+            const api_version = comptime std.fmt.parseInt(u32, api_version_string, 10) catch unreachable;
+            const protocol_version_string = build_zon.dependencies.pulseaudio.protocol_version;
+            const protocol_version = comptime std.fmt.parseInt(u32, protocol_version_string, 10) catch unreachable;
+            lib.addConfigHeader(b.addConfigHeader(.{
+                .style = .{ .cmake = pulseaudio.path("src/pulse/version.h.in") },
+                .include_path = "pulse/version.h",
+            }, .{
+                .PA_MAJOR = @as(i64, version.major),
+                .PA_MINOR = @as(i64, version.minor),
+                .PA_API_VERSION = api_version,
+                .PA_PROTOCOL_VERSION = protocol_version,
+            }));
+        }
     }
 
     // Provide the direct rendering manager headers
@@ -474,6 +480,8 @@ pub fn build(
 
     // Configure SDL
     config.addValues(.{
+        .HAVE_GCC_ATOMICS = true,
+
         // Useful headers
         .HAVE_FLOAT_H = true,
         .HAVE_STDARG_H = true,

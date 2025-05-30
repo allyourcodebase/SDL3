@@ -1,6 +1,7 @@
 const std = @import("std");
 const sources = @import("src/sdl.zon");
 const linux = @import("src/linux.zig");
+const windows = @import("src/windows.zig");
 
 pub fn build(b: *std.Build) !void {
     // Get the upstream source and build options
@@ -32,7 +33,9 @@ pub fn build(b: *std.Build) !void {
     const config = b.addConfigHeader(.{
         .style = .{ .cmake = upstream.path("include/build_config/SDL_build_config.h.cmake") },
         .include_path = "SDL_build_config.h",
-    }, .{});
+    }, .{
+        .USING_GENERATED_CONFIG_H = true,
+    });
     lib.addConfigHeader(config);
 
     // Set the assert level, this logic mirrors the default SDL options with release safe added.
@@ -51,6 +54,7 @@ pub fn build(b: *std.Build) !void {
     // Configure the build for the target platform
     switch (target.result.os.tag) {
         .linux => linux.build(b, lib, config, target.result),
+        .windows => windows.build(b, lib, config),
         else => @panic("target not yet supported"),
     }
 

@@ -65,7 +65,7 @@ On Linux, you can force Wayland/X11 via the environment variable `SDL_VIDEODRIVE
 
 * [x] Linux
 	* [-] Steam Deck (should work, but not yet tested)
-* [ ] Windows
+* [x] Windows
 * [ ] macOS (help wanted!)
 * [ ] Consoles (help wanted!)
 
@@ -87,12 +87,14 @@ When adding support for a new platform, please follow the existing conventions a
 This should rarely be necessary. If it is, you can update their version in `build.zig.zon` if present, and any relevant files in `/deps` if present.
 
 # TODO
-* [ ] dynapi toggle
-* [ ] consider support for outputting a shared library
-* [ ] test cross compiling
-* [ ] add build options for enabling/disabling subsystems, and changing so names
+* [ ] Add configuration options
+  * [ ] dynapi toggle
+  * [ ] shared object name overrides
+  * [ ] options to disable subsystems
+  * [ ] consider support for outputting a shared library
+  * [ ] allow forcing on HAVE_WINDOWS_GAMING_INPUT_H/HAVE_GAMEINPUT_H
 * [ ] allow using system versions of dependencies if specified as build flag
+* [ ] cross as gnu vs msvc vs neither?
+  * [ ] test in wine as well
+* [ ] Make licenses on deps clear
 * [ ] examples
-
-# Windows TODO
-* [ ] Get building on Windows, make sure cross compile works both ways and resulting binaries work

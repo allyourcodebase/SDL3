@@ -236,7 +236,6 @@
         "storage/SDL_storage.c",
         "storage/steam/SDL_steamstorage.c",
         "thread/generic/SDL_syscond.c",
-        "thread/generic/SDL_sysmutex.c",
         "thread/generic/SDL_sysrwlock.c",
         "thread/generic/SDL_syssem.c",
         "thread/generic/SDL_systhread.c",
@@ -461,6 +460,7 @@
         "haptic/linux/SDL_syshaptic.c",
         "hidapi/linux/hid.c",
         "joystick/linux/SDL_sysjoystick.c",
+        "thread/generic/SDL_sysmutex.c",
     },
     .mac = .{
         "hidapi/mac/hid.c",
@@ -476,6 +476,9 @@
     .openbsd = .{
         "core/openbsd/SDL_wscons_kbd.c",
         "core/openbsd/SDL_wscons_mouse.c",
+    },
+    .pp_data_dump = .{
+        "hidapi/windows/pp_data_dump/pp_data_dump.c",
     },
     .ps2 = .{
         "audio/ps2/SDL_ps2audio.c",
@@ -510,7 +513,6 @@
         "haptic/windows/SDL_windowshaptic.c",
         "hidapi/windows/hid.c",
         "hidapi/windows/hidapi_descriptor_reconstruct.c",
-        "hidapi/windows/pp_data_dump/pp_data_dump.c",
         "io/windows/SDL_asyncio_windows_ioring.c",
         "locale/windows/SDL_syslocale.c",
         "misc/windows/SDL_sysurl.c",
