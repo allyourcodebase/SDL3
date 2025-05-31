@@ -1,7 +1,16 @@
 const std = @import("std");
-const sources = @import("src/sdl.zon");
 const linux = @import("src/linux.zig");
 const windows = @import("src/windows.zig");
+const build_zon = @import("build.zig.zon");
+
+const assert = std.debug.assert;
+
+pub const sources = @import("src/sdl.zon");
+
+pub const flags = &.{
+    "-fno-strict-aliasing",
+    "-fvisibility=hidden",
+};
 
 pub fn build(b: *std.Build) !void {
     // Get the upstream source and build options
@@ -9,13 +18,50 @@ pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    // Create and install the library and it's headers
-    const lib = b.addStaticLibrary(.{
+    const default_target_config = b.option(
+        bool,
+        "default_target_config",
+        \\provides a default `SDL_build_config.h` and dependencies for the current target, defaults
+        \\to true
+        ,
+    ) orelse true;
+
+    const linkage = b.option(
+        std.builtin.LinkMode,
+        "linkage",
+        \\whether to build a static or dynamic library, defaults to static
+        ,
+    ) orelse .static;
+
+    // Get the so version. This is the same as the SDL version, but the major version is elided
+    // since it's baked into the name. This mirrors the official build process.
+    var sdl_so_version = comptime std.SemanticVersion.parse(build_zon.dependencies.sdl.version) catch unreachable;
+    assert(sdl_so_version.major == 3);
+    sdl_so_version.major = 0;
+
+    // Create the library
+    const lib = b.addLibrary(.{
         .name = "SDL3",
-        .target = target,
-        .optimize = optimize,
-        .link_libc = true,
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        }),
+        .linkage = linkage,
+        .version = sdl_so_version,
     });
+    switch (linkage) {
+        .dynamic => {
+            lib.root_module.addCMacro("DLL_EXPORT", "1");
+            lib.setVersionScript(upstream.path("src/dynapi/SDL_dynapi.sym"));
+        },
+        .static => lib.root_module.addCMacro("SDL_STATIC_LIB", "1"),
+    }
+    lib.root_module.addCMacro("SDL_VENDOR_INFO", std.fmt.comptimePrint("\"{s} {s} (SDL {s})\"", .{
+        "https://github.com/Games-by-Mason/sdl_zig",
+        build_zon.dependencies.sdl.version,
+        build_zon.version,
+    }));
     lib.installHeadersDirectory(upstream.path("include/SDL3"), "SDL3", .{});
     b.installArtifact(lib);
 
@@ -27,71 +73,44 @@ pub fn build(b: *std.Build) !void {
     lib.addCSourceFiles(.{
         .files = &sources.generic,
         .root = upstream.path("src"),
+        .flags = flags,
     });
 
-    // Set up the build configuration
-    const config = b.addConfigHeader(.{
-        .style = .{ .cmake = upstream.path("include/build_config/SDL_build_config.h.cmake") },
-        .include_path = "SDL_build_config.h",
-    }, .{
-        .USING_GENERATED_CONFIG_H = true,
-    });
-    lib.addConfigHeader(config);
+    if (default_target_config) {
+        const build_config_h = b.addConfigHeader(.{
+            .style = .{ .cmake = upstream.path("include/build_config/SDL_build_config.h.cmake") },
+            .include_path = "SDL_build_config.h",
+        }, .{
+            // Don't allow including the default config
+            .USING_GENERATED_CONFIG_H = true,
 
-    // Set the assert level, this logic mirrors the default SDL options with release safe added.
-    // https://wiki.libsdl.org/SDL3/SDL_ASSERT_LEVEL
-    switch (optimize) {
-        .Debug, .ReleaseSafe => config.addValues(.{
+            // Generic audio drivers
+            .SDL_AUDIO_DRIVER_DUMMY = true,
+            .SDL_AUDIO_DRIVER_DISK = true,
+
+            // Generic video drivers
+            .SDL_VIDEO_DRIVER_DUMMY = true,
+            .SDL_VIDEO_DRIVER_OFFSCREEN = true,
+
+            // Set the assert level, this logic mirrors the default SDL options with release
+            // safe added.
+            // https://wiki.libsdl.org/SDL3/SDL_ASSERT_LEVEL
             .SDL_DEFAULT_ASSERT_LEVEL_CONFIGURED = true,
-            .SDL_DEFAULT_ASSERT_LEVEL = 2,
-        }),
-        .ReleaseSmall, .ReleaseFast => config.addValues(.{
-            .SDL_DEFAULT_ASSERT_LEVEL_CONFIGURED = true,
-            .SDL_DEFAULT_ASSERT_LEVEL = 1,
-        }),
-    }
+            .SDL_DEFAULT_ASSERT_LEVEL = switch (optimize) {
+                .Debug, .ReleaseSafe => @as(i64, 2),
+                .ReleaseSmall, .ReleaseFast => @as(i64, 1),
+            },
+        });
+        lib.addConfigHeader(build_config_h);
 
-    // Configure the build for the target platform
-    switch (target.result.os.tag) {
-        .linux => linux.build(b, lib, config, target.result),
-        .windows => windows.build(b, lib, config),
-        else => @panic("target not yet supported"),
-    }
-
-    // A build step for updating the cached Wayland protocols. This isn't built into the the normal
-    // build process to avoid having to build the wayland-scanner and its dependencies from source,
-    // instead you must have `wayland-scanner` available on your path when you update Wayland or to
-    // a version of SDL that requires new Wayland protocols.
-    {
-        const update_wayland_protocols = b.addUpdateSourceFiles();
-        const generate_wayland_protocols = b.step(
-            "wayland-scanner",
-            "Regenerate the required Wayland protocols.",
-        );
-        generate_wayland_protocols.dependOn(&update_wayland_protocols.step);
-
-        for (@as([]const []const u8, &sources.wayland_protocols)) |xml| {
-            const generate_header = b.addSystemCommand(&.{ "wayland-scanner", "client-header" });
-            generate_header.addFileArg(upstream.path(b.pathJoin(&.{ "wayland-protocols", xml })));
-            const header_name = b.fmt("{s}-client-protocol.h", .{std.fs.path.stem(xml)});
-            const header = generate_header.addOutputFileArg(header_name);
-            update_wayland_protocols.addCopyFileToSource(header, b.pathJoin(&.{
-                "deps",
-                "wayland",
-                "protocols",
-                header_name,
-            }));
-
-            const generate_source = b.addSystemCommand(&.{ "wayland-scanner", "private-code" });
-            generate_source.addFileArg(upstream.path(b.pathJoin(&.{ "wayland-protocols", xml })));
-            const source_name = b.fmt("{s}-client.c", .{std.fs.path.stem(xml)});
-            const source = generate_source.addOutputFileArg(source_name);
-            update_wayland_protocols.addCopyFileToSource(source, b.pathJoin(&.{
-                "deps",
-                "wayland",
-                "protocols",
-                source_name,
-            }));
+        // Configure the build for the target platform
+        switch (target.result.os.tag) {
+            .linux => linux.build(b, target.result, lib, build_config_h),
+            .windows => windows.build(b, target.result, lib, build_config_h),
+            else => @panic("target has no default config"),
         }
     }
+
+    // Add the Wayland scanner step
+    linux.addWaylandScannerStep(b);
 }

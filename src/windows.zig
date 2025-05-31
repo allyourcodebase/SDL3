@@ -1,37 +1,51 @@
 const std = @import("std");
 const build_zon = @import("../build.zig.zon");
 const sources = @import("sdl.zon");
+const root = @import("../build.zig");
+const Subsystems = root.Subsystems;
+const AllDrivers = root.Drivers;
 
 pub fn build(
     b: *std.Build,
+    target: std.Target,
     lib: *std.Build.Step.Compile,
-    config: *std.Build.Step.ConfigHeader,
+    build_config_h: *std.Build.Step.ConfigHeader,
 ) void {
+    _ = target;
+
     const upstream = b.dependency("sdl", .{});
 
-    // Provide upstream headers that don't require any special handling
+    // Add the platform specific dependency include paths
     lib.addIncludePath(b.dependency("egl", .{}).path("api"));
     lib.addIncludePath(b.dependency("opengl", .{}).path("api"));
 
+    // Link with the platform specific system libraries
+    lib.linkSystemLibrary("advapi32");
+    lib.linkSystemLibrary("gdi32");
+    lib.linkSystemLibrary("imm32");
+    lib.linkSystemLibrary("kernel32");
+    lib.linkSystemLibrary("ole32");
+    lib.linkSystemLibrary("oleaut32");
+    lib.linkSystemLibrary("setupapi");
+    lib.linkSystemLibrary("shell32");
+    lib.linkSystemLibrary("user32");
+    lib.linkSystemLibrary("uuid");
+    lib.linkSystemLibrary("version");
+    lib.linkSystemLibrary("winmm");
+
+    // Add the platform specific sources
     lib.addCSourceFiles(.{
         .files = &sources.windows,
         .root = upstream.path("src"),
+        .flags = root.flags,
     });
 
-    lib.linkSystemLibrary("kernel32");
-    lib.linkSystemLibrary("user32");
-    lib.linkSystemLibrary("gdi32");
-    lib.linkSystemLibrary("winmm");
-    lib.linkSystemLibrary("imm32");
-    lib.linkSystemLibrary("ole32");
-    lib.linkSystemLibrary("oleaut32");
-    lib.linkSystemLibrary("version");
-    lib.linkSystemLibrary("uuid");
-    lib.linkSystemLibrary("advapi32");
-    lib.linkSystemLibrary("setupapi");
-    lib.linkSystemLibrary("shell32");
+    if (lib.linkage == .dynamic) {
+        lib.addWin32ResourceFile(.{ .file = upstream.path("src/core/windows/version.rc") });
+    }
 
-    config.addValues(.{
+    // Set the platform specific build config
+    build_config_h.addValues(.{
         .HAVE_GCC_ATOMICS = true,
 
         .HAVE_DDRAW_H = true,
@@ -137,7 +151,6 @@ pub fn build(
         // Enable various audio drivers
         .SDL_AUDIO_DRIVER_WASAPI = true,
         .SDL_AUDIO_DRIVER_DSOUND = true,
-        .SDL_AUDIO_DRIVER_DISK = true,
         .SDL_AUDIO_DRIVER_DUMMY = true,
 
         // Enable various input drivers
@@ -170,11 +183,12 @@ pub fn build(
 
         // Enable various video drivers
         .SDL_VIDEO_DRIVER_DUMMY = true,
-        .SDL_VIDEO_DRIVER_OFFSCREEN = true,
         .SDL_VIDEO_DRIVER_WINDOWS = true,
+
         .SDL_VIDEO_RENDER_D3D = true,
         .SDL_VIDEO_RENDER_D3D11 = true,
         .SDL_VIDEO_RENDER_D3D12 = true,
+        .SDL_VIDEO_RENDER_GPU = true,
 
         // Enable OpenGL support
         .SDL_VIDEO_OPENGL = true,
@@ -191,8 +205,6 @@ pub fn build(
         // Enable GPU support
         .SDL_GPU_D3D11 = true,
         .SDL_GPU_D3D12 = true,
-        .SDL_GPU_VULKAN = true,
-        .SDL_VIDEO_RENDER_GPU = true,
 
         // Enable system power support
         .SDL_POWER_WINDOWS = true,
@@ -212,8 +224,8 @@ pub fn build(
         // a bit annoying for cross compilation as Microsoft doesn't make the license on these very
         // clear. In practice they don't seem to do too much that they other input drivers don't
         // already do.
-        .HAVE_WINDOWS_GAMING_INPUT_H = false
-        .HAVE_GAMEINPUT_H = false
+        .HAVE_WINDOWS_GAMING_INPUT_H = false,
+        .HAVE_GAMEINPUT_H = false,
 
         // Unused
         .SDL_AUDIO_DRIVER_ALSA_DYNAMIC = "",

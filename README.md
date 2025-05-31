@@ -2,9 +2,7 @@
 
 SDL3 ported to the Zig build system.
 
-# Dependencies
-
-By default, SDL3 loads its dependencies at runtime, so most of the time you won't need to install anything extra on your system.
+# Setup
 
 You can add SDL3 to your project like this by updating `build.zig.zon` from the command line:
 ```sh
@@ -37,17 +35,11 @@ Here's a `shell.nix` for a Vulkan app as an example of running an SDL applicatio
 
 pkgs.mkShell {
   packages = with pkgs; [
-    alsa-lib
-    libusb1
-    libxkbcommon
     vulkan-validation-layers
-    wayland
-    xorg.libX11
-    xorg.libXext
-    xorg.libXi
   ];
   LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [
     alsa-lib
+    libdecor
     libusb1
     libxkbcommon
     vulkan-loader
@@ -55,46 +47,58 @@ pkgs.mkShell {
     xorg.libX11
     xorg.libXext
     xorg.libXi
+    udev
   ]);
 }
+
 ```
 
-On Linux, you can force Wayland/X11 via the environment variable `SDL_VIDEODRIVER`.
+Note that on Linux, you can force `wayland`/`x11` via the environment variable `SDL_VIDEODRIVER`.
 
-# Platform Support
+# Target Configuration
 
+Provides a default configuration for common targets:
 * [x] Linux
-	* [-] Steam Deck (should work, but not yet tested)
+  * [-] Steam Deck (should work, but not yet tested)
 * [x] Windows
 * [ ] macOS (help wanted!)
 * [ ] Consoles (help wanted!)
+* [ ] Emscripten (help wanted!)
 
-If you're interested in adding build support for other operating systems or consoles, contributions are welcome! See `src/linux.zig` for an example of how to configure support for a new platform.
+You can override this by setting `default_target_config` to `false` and then providing your own configuration, this is typically only necessary when your platform doesn't yet have a default configuration:
+```zig
+const sdl = b.dependency("sdl", .{
+    .optimize = optimize,
+    .target = target,
+    .default_target_config = false,
+});
+const sdl_lib = sdl.artifact("SDL3");
+sdl_lib.addIncludePath(...); // Path to your `SDL_build_config.h`, see `windows.zig` for an example of generating this
+```
 
-When adding support for a new platform, please follow the existing conventions around dependencies:
-* SDL typically supports loading dependencies at runtime rather than linking with them directly
-* This repo pulls dependencies in via Zig's build system instead of vendoring them where possible, placing sources in `/deps` is a last resort
-* Cross compilation should be possible unless licensing restrictions forbid it
+Any other necessary tweaks such as turning of linking with libc, linking with dependencies, or adding other headers can be done here.
+
+If you're interested in adding default configuration for additional targets, contributions are welcome! See `src/linux.zig` or `src/windows.zig` for examples of how this works.
+
+When adding support for a new target:
+* Mimic the default SDL configuration for the target as closely as possible (e.g. if SDL defaults to loading dependencies at runtime, the added configuration should too)
+* When possible, pull dependencies in via the build system rather than vendoring them. Vendoring deps in `/deps` is a last resort, anything added here should include a README explaining why it couldn't be pulled in via the build system and licensing information.
+* Cross compilation to all targets should be possible unless forbidden by licensing.
 
 # Updating SDL
 
 * Modify `build.zig.zon` to point to the desired SDL version
-* If you get linker errors or missing headers relating to Wayland protocols, new Wayland protocols were added upstream. You can fix this by running `zig build wayland-scanner` with `wayland-scanner`.
+* If you get linker errors or missing headers relating to Wayland protocols on Linux, new Wayland protocols were added upstream. You can fix this by running `zig build wayland-scanner` with `wayland-scanner`.
 * If you get any other linker errors or missing files, sources were added or renamed upstream, and you need to update `src/sdl.zon`.
 
-# Updating Other Dependencies
+# Updating Dependencies
 
-This should rarely be necessary. If it is, you can update their version in `build.zig.zon` if present, and any relevant files in `/deps` if present.
+This should rarely be necessary. When it is, you can update their version in `build.zig.zon` if present, and any relevant files in `/deps` if present.
 
 # TODO
-* [ ] Add configuration options
-  * [ ] dynapi toggle
-  * [ ] shared object name overrides
-  * [ ] options to disable subsystems
-  * [ ] consider support for outputting a shared library
-  * [ ] allow forcing on HAVE_WINDOWS_GAMING_INPUT_H/HAVE_GAMEINPUT_H
-* [ ] allow using system versions of dependencies if specified as build flag
+* [ ] why is rpi disabled
+* [ ] enable glx
+* [ ] consider allow using system versions of dependencies if specified as build flag
 * [ ] cross as gnu vs msvc vs neither?
-  * [ ] test in wine as well
-* [ ] Make licenses on deps clear
 * [ ] examples
+* [ ] test on steam deck

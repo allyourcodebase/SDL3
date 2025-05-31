@@ -1,12 +1,13 @@
 .{
     .name = .sdl,
     .fingerprint = 0xec638ccbd103848b,
-    .version = "3.2.14",
+    .version = "0.0.0",
     .minimum_zig_version = "0.15.0-dev.388+05e217607",
     .dependencies = .{
         .sdl = .{
             .url = "https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.2.14.tar.gz",
             .hash = "N-V-__8AAHRriwPslozjEw46IksOzPlNxJRXM087krt8ynXh",
+            .version = "3.2.14",
         },
         .dbus = .{
             .version = "1.16.0",
