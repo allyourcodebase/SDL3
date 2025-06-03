@@ -111,6 +111,6 @@ When making a PR that adds support for a new target:
 * If you get linker errors or missing headers relating to Wayland protocols on Linux, new Wayland protocols were added upstream. You can fix this by running `zig build wayland-scanner` with `wayland-scanner`.
 * If you get any other linker errors or missing files, sources were added or renamed upstream, and you need to update `src/sdl.zon`.
 
-# SDL's Dependencies
+## SDL's Dependencies
 
 This should rarely be necessary. When it is, you can update their version in `build.zig.zon` if present, and any relevant files in `/deps` if present.

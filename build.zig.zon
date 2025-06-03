@@ -124,6 +124,7 @@
         "build.zig",
         "build.zig.zon",
         "src",
+        "deps",
         "LICENSE",
         "README.md",
     },
