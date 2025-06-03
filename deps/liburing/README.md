@@ -1,6 +1,6 @@
 # liburing 2.10
 
-Vendored from [https://github.com/axboe/liburing/](here). We only need the headers, but we can't get them through the build system, as the upstream repo contains files with an extenion of `.3` which isn't allowed on Windows, breaking cross compilation.
+Vendored from [here](https://github.com/axboe/liburing/releases/tag/liburing-2.10). We only need the headers, but we can't get them through the build system, as the upstream repo contains files with an extenion of `.3` which isn't allowed on Windows, breaking cross compilation.
 
 As such, we've copied the required files into `include`.
 
