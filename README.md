@@ -97,7 +97,6 @@ This should rarely be necessary. When it is, you can update their version in `bu
 
 # TODO
 * [ ] why is rpi disabled
-* [ ] enable glx
 * [ ] consider allow using system versions of dependencies if specified as build flag
 * [ ] cross as gnu vs msvc vs neither?
 * [ ] examples

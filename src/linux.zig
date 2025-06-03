@@ -423,7 +423,7 @@ pub fn build(
         {
             lib.addIncludePath(b.path("deps/drm/include"));
             lib.addIncludePath(b.path("deps/drm/include/drm"));
-            lib.addIncludePath(b.path("deps/gbm/include"));
+            lib.addIncludePath(b.path("deps/mesa/include/gbm"));
         }
 
         // Provide the Alsa headers
@@ -452,6 +452,7 @@ pub fn build(
         lib.addIncludePath(b.dependency("sndio", .{}).path("libsndio"));
         lib.addIncludePath(b.path("deps/wayland/protocols"));
         lib.addIncludePath(b.dependency("decor", .{}).path("src"));
+        lib.addIncludePath(b.path("deps/mesa/include"));
 
         // Provide vendored headers that don't require any special handling
         lib.addIncludePath(b.path("deps/xcb/include"));
@@ -730,7 +731,7 @@ pub fn build(
         .SDL_VIDEO_OPENGL_ES = true,
         .SDL_VIDEO_OPENGL_ES2 = true,
         .SDL_VIDEO_OPENGL_CGL = true,
-        .SDL_VIDEO_OPENGL_GLX = false,
+        .SDL_VIDEO_OPENGL_GLX = true,
         .SDL_VIDEO_OPENGL_EGL = true,
         .SDL_VIDEO_VULKAN = true,
 
