@@ -691,7 +691,6 @@ pub fn build(
         .SDL_VIDEO_DRIVER_KMSDRM_DYNAMIC = formatDynamic("libdrm.so"),
         .SDL_VIDEO_DRIVER_KMSDRM_DYNAMIC_GBM = formatDynamic("libgbm.so"),
         .SDL_VIDEO_DRIVER_ROCKCHIP = true,
-        .SDL_VIDEO_DRIVER_RPI = false,
         .SDL_VIDEO_DRIVER_OPENVR = false, // https://github.com/libsdl-org/SDL/issues/11329
         .SDL_VIDEO_DRIVER_WAYLAND = true,
         .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC = formatDynamic("libwayland-client.so"),

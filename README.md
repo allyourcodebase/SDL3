@@ -9,7 +9,7 @@ You can add SDL3 to your project like this by updating `build.zig.zon` from the 
 zig fetch --save <url-of-this-repo>
 ```
 
-Adding SDL3 to `build.zig`:
+And then you can add it to your `build.zig` like this:
 ```zig
 const sdl = b.dependency("sdl", .{
     .optimize = optimize,
@@ -18,7 +18,7 @@ const sdl = b.dependency("sdl", .{
 exe.linkLibrary(sdl.artifact("SDL3"));
 ```
 
-And then using it's C API from Zig:
+Finally, you can use SDL's C API from Zig like this:
 ```zig
 const c = @import("c.zig");
 if (!c.SDL_Init(c.SDL_INIT_VIDEO)) {
@@ -27,9 +27,17 @@ if (!c.SDL_Init(c.SDL_INIT_VIDEO)) {
 defer c.SDL_Quit();
 ```
 
-If this fails, SDL likely failed to find your video drivers. Keep in mind that it's not linking with them, it's loading them at runtime from your library path, so this can be a problem on platforms like like NixOS that don't expose all installed libraries this way by default.
+## Help, `SDL_Init` failed on Linux!
 
-Here's a `shell.nix` for a Vulkan app as an example of running an SDL application on NixOS with either X11 or Wayland:
+```sh
+SDL_Init failed: No available video device
+```
+
+By default, [SDL loads most of its dependencies at runtime on Linux.](https://wiki.libsdl.org/SDL3/README-linux) This lets it decide at runtime which audio drivers to use, whether to use Wayland or X11, etc.
+
+For this to work, the libraries SDL is looking for need to be on your `LD_LIBRARY_PATH`. This may not be the case by default on distributions like NixOS.
+
+Here's a `shell.nix` for a Vulkan app as an example of running an SDL application on NixOS with either X11 or Wayland.
 ```
 { pkgs ? import <nixpkgs> {}}:
 
@@ -50,10 +58,9 @@ pkgs.mkShell {
     udev
   ]);
 }
-
 ```
 
-Note that on Linux, you can force `wayland`/`x11` via the environment variable `SDL_VIDEODRIVER`.
+Not all of these dependencies in this example are required. Since both X11 and Wayland dependencies are listed, SDL will use its judgement to decide which to prefer unless `SDL_VIDEODRIVER` is set.
 
 # Target Configuration
 
@@ -96,7 +103,6 @@ When adding support for a new target:
 This should rarely be necessary. When it is, you can update their version in `build.zig.zon` if present, and any relevant files in `/deps` if present.
 
 # TODO
-* [ ] why is rpi disabled
 * [ ] consider allow using system versions of dependencies if specified as build flag
 * [ ] cross as gnu vs msvc vs neither?
 * [ ] examples
