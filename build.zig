@@ -113,4 +113,16 @@ pub fn build(b: *std.Build) !void {
 
     // Add the Wayland scanner step
     linux.addWaylandScannerStep(b);
+
+    // Add the example
+    const example = b.addExecutable(.{
+        .name = "example",
+        .root_source_file = b.path("src/example.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    example.linkLibrary(lib);
+    const run_example = b.addRunArtifact(example);
+    const run_step = b.step("run-example", "Run the example app");
+    run_step.dependOn(&run_example.step);
 }

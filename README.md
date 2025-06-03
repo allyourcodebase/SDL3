@@ -27,6 +27,15 @@ if (!c.SDL_Init(c.SDL_INIT_VIDEO)) {
 defer c.SDL_Quit();
 ```
 
+## Example
+
+To run the example, run:
+```sh
+zig build run-example
+```
+
+This should produce a window with a pulsing gradient.
+
 ## Help, `SDL_Init` failed on Linux!
 
 ```sh
@@ -65,8 +74,8 @@ Not all of these dependencies in this example are required. Since both X11 and W
 # Target Configuration
 
 Provides a default configuration for common targets:
-* [x] Linux
-  * [-] Steam Deck (should work, but not yet tested)
+* [x] Linux (including Steam Deck)
+  * [x] Steam Deck
 * [x] Windows
 * [ ] macOS (help wanted!)
 * [ ] Consoles (help wanted!)
@@ -103,7 +112,4 @@ When adding support for a new target:
 This should rarely be necessary. When it is, you can update their version in `build.zig.zon` if present, and any relevant files in `/deps` if present.
 
 # TODO
-* [ ] consider allow using system versions of dependencies if specified as build flag
 * [ ] cross as gnu vs msvc vs neither?
-* [ ] examples
-* [ ] test on steam deck
