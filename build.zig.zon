@@ -112,8 +112,8 @@
         .pulseaudio_windows = .{
             // This is a duplicate of `pulseaudio`, but with a different hash due to a Zig bug that
             // results in a different hash on Windows than Linux.
-            .url = "https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/archive/v16.2/pulseaudio-v16.2.tar.gz",
-            .hash = "N-V-__8AAISJ2wAn96fsxYvnGxNaZ92gY4hkK8ciaV7JrK3N",
+            .url = "https://github.com/Games-by-Mason/pulseaudio/archive/refs/tags/v16.2.tar.gz",
+            .hash = "N-V-__8AAH-J2wA1QFgeIKK0hLveAjq3mNnOJb96xak4HFqx",
             .lazy = true,
         },
         .alsa = .{
