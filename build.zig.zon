@@ -96,16 +96,21 @@
             .hash = "N-V-__8AANOERwAn9QBxYJf43h9P3jq2HYTPvXlZRCHPEmrj",
         },
         .pulseaudio = .{
-            // Must be kept in sync with `pulseaudio_windows`
-            .url = "https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/archive/v16.2/pulseaudio-v16.2.tar.gz",
-            .hash = "N-V-__8AAD2K2wBIT_BYCZfQApfw-N1-j9V3ibY7YN3IlTdj",
+            // This dependency must be kept in sync with `pulseaudio_windows`.
+            //
+            // We fetch from a mirror because the upstream tarball hash occasionally changes. The
+            // mirror is identical to upstream at the time it was pulled.
+            //
+            // Upstream: https://gitlab.freedesktop.org/pulseaudio/pulseaudio/
+            .url = "https://github.com/Games-by-Mason/pulseaudio/archive/refs/tags/v16.2.tar.gz",
+            .hash = "N-V-__8AADiK2wBbQBbppKI9s1sR8vTGLV1mhn44OEYxyPD4",
             .version = "16.2.0",
             .api_version = "12", // From `meson.build`, does not directly track version!
             .protocol_version = "35", // From `meson.build`, does not directly track version!
             .lazy = true,
         },
         .pulseaudio_windows = .{
-            // This is a duplicate of `pulseaudio`, but with a different hash due to a bug that
+            // This is a duplicate of `pulseaudio`, but with a different hash due to a Zig bug that
             // results in a different hash on Windows than Linux.
             .url = "https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/archive/v16.2/pulseaudio-v16.2.tar.gz",
             .hash = "N-V-__8AAISJ2wAn96fsxYvnGxNaZ92gY4hkK8ciaV7JrK3N",
