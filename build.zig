@@ -117,9 +117,11 @@ pub fn build(b: *std.Build) !void {
     // Add the example
     const example = b.addExecutable(.{
         .name = "example",
-        .root_source_file = b.path("src/example.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/example.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     example.linkLibrary(lib);
     const run_example = b.addRunArtifact(example);
