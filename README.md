@@ -1,4 +1,4 @@
-[![CI](https://github.com/GamesByMason/sdl_zig/actions/workflows/ci.yaml/badge.svg)](https://github.com/GamesByMason/sdl_zig/actions)
+[![CI](https://github.com/Games-By-Mason/sdl_zig/actions/workflows/ci.yaml/badge.svg)](https://github.com/Games-By-Mason/sdl_zig/actions)
 
 # SDL3 Zig
 
