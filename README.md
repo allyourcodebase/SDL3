@@ -98,7 +98,7 @@ sdl_lib.addIncludePath(...); // Path to your `SDL_build_config.h`, see `windows.
 
 Any other necessary tweaks such as turning of linking with libc, linking with dependencies, or adding other headers can be done here as well.
 
-If you're interested in adding default configuration for additional targets, contributions are welcome! See [src/linux.zig](src/linux.zig) or [src/windows.zig](src/windows.zig) for examples of how this works.
+If you're interested in adding default configuration for additional targets, listed or not, contributions are welcome! See [src/linux.zig](src/linux.zig) or [src/windows.zig](src/windows.zig) for examples of how this works.
 
 When making a PR that adds support for a new target:
 * Replicate the [default SDL configuration for the target](https://github.com/libsdl-org/SDL/tree/main/include/build_config) within reason
