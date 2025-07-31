@@ -73,8 +73,8 @@
             .hash = "N-V-__8AANorBADbt-RlITZJofNvQWTiaQlv7r7lWYtxAqGx",
         },
         .xscrnsaver = .{
-            .url = "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver/-/archive/master/libxscrnsaver-master.tar.gz",
-            .hash = "N-V-__8AAHjRAADlwbmwYhgrCmKOPCwcpMzG3pB6h-lmPQ80",
+            .url = "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver/-/archive/libXScrnSaver-1.2.4/libxscrnsaver-libXScrnSaver-1.2.4.tar.gz",
+            .hash = "N-V-__8AAMXRAAAKIBB3YHvwcykG71lH-HtylfJ0AV048a7V",
         },
         .decor = .{
             .url = "https://gitlab.freedesktop.org/libdecor/libdecor/-/archive/0.2.3/libdecor-0.2.3.tar.gz",
