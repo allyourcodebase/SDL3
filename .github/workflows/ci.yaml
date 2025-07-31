@@ -33,5 +33,8 @@ jobs:
         if: runner.os != 'Windows' # zig fmt failing on Windows CI, unclear why
         run: zig fmt --ast-check --check .
 
-      - name: Build
-        run: zig build --summary all
+      - name: Build for Windows
+        run: zig build -Dtarget=x86_64-windows-gnu --summary all
+
+      - name: Build for Linux
+        run: zig build -Dtarget=x86_64-linux-gnu --summary all

@@ -72,10 +72,6 @@
             .url = "https://gitlab.freedesktop.org/xorg/lib/libxrender/-/archive/libXrender-0.9.12/libxrender-libXrender-0.9.12.tar.gz",
             .hash = "N-V-__8AANorBADbt-RlITZJofNvQWTiaQlv7r7lWYtxAqGx",
         },
-        .xscrnsaver = .{
-            .url = "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver/-/archive/libXScrnSaver-1.2.4/libxscrnsaver-libXScrnSaver-1.2.4.tar.gz",
-            .hash = "N-V-__8AAMXRAAAKIBB3YHvwcykG71lH-HtylfJ0AV048a7V",
-        },
         .decor = .{
             .url = "https://gitlab.freedesktop.org/libdecor/libdecor/-/archive/0.2.3/libdecor-0.2.3.tar.gz",
             .hash = "N-V-__8AAEG5BAAsZkN2QXLyeuqTnHEOXHHUOGPC9azQ7zq8",
@@ -114,6 +110,19 @@
             // results in a different hash on Windows than Linux.
             .url = "https://github.com/Games-by-Mason/pulseaudio/archive/refs/tags/v16.2.tar.gz",
             .hash = "N-V-__8AAH-J2wA1QFgeIKK0hLveAjq3mNnOJb96xak4HFqx",
+            .lazy = true,
+        },
+        .xscrnsaver = .{
+            // This dependency must be kept in sync with `xscrnsaver_windows` for similar reasons explained in the `pulseaudio` dependency.
+            .url = "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver/-/archive/libXScrnSaver-1.2.4/libxscrnsaver-libXScrnSaver-1.2.4.tar.gz",
+            .hash = "N-V-__8AAMXRAAAKIBB3YHvwcykG71lH-HtylfJ0AV048a7V",
+            .lazy = true,
+        },
+        .xscrnsaver_windows = .{
+            // This is a duplicate of `xscrnsaver`, but with a different hash due to a Zig bug that
+            // results in a different hash on Windows than Linux.
+            .url = "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver/-/archive/libXScrnSaver-1.2.4/libxscrnsaver-libXScrnSaver-1.2.4.tar.gz",
+            .hash = "N-V-__8AAEO3AADhS3i2HiVniZnPqWJh33VqmmUp7JO33xqe",
             .lazy = true,
         },
         .alsa = .{

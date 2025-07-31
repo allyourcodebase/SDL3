@@ -436,6 +436,16 @@ pub fn build(
             lib.addIncludePath(b.path("deps/alsa/include"));
         }
 
+        // Provide the xscrnsaver headers. Conditional is workaround for cross compilation, see
+        // comment in `build.zig.zon`
+        const xscrnsaver_name = switch (@import("builtin").os.tag) {
+            .windows => "xscrnsaver_windows",
+            else => "xscrnsaver",
+        };
+        if (b.lazyDependency(xscrnsaver_name, .{})) |xscrnsaver| {
+            lib.addIncludePath(xscrnsaver.path("include"));
+        }
+
         // Provide upstream headers that don't require any special handling
         lib.addIncludePath(b.dependency("egl", .{}).path("api"));
         lib.addIncludePath(b.dependency("opengl", .{}).path("api"));
@@ -447,7 +457,6 @@ pub fn build(
         lib.addIncludePath(b.dependency("xfixes", .{}).path("include"));
         lib.addIncludePath(b.dependency("xrandr", .{}).path("include"));
         lib.addIncludePath(b.dependency("xrender", .{}).path("include"));
-        lib.addIncludePath(b.dependency("xscrnsaver", .{}).path("include"));
         lib.addIncludePath(b.dependency("jack", .{}).path("common"));
         lib.addIncludePath(b.dependency("sndio", .{}).path("libsndio"));
         lib.addIncludePath(b.path("deps/wayland/protocols"));
