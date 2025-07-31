@@ -1,6 +1,8 @@
+[![CI](https://github.com/GamesByMason/sdl_zig/actions/workflows/ci.yaml/badge.svg)](https://github.com/GamesByMason/sdl_zig/actions)
+
 # SDL3 Zig
 
-SDL3 ported to the Zig build system.
+SDL3 ported to the Zig build system. Requires at least Zig `0.15.0-dev.1218+bc8e1a74c`.
 
 Supports cross compilation and custom platform configuration.
 
