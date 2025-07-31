@@ -81,9 +81,9 @@ This library provides a default configuration for common targets:
 * [x] Linux (including Steam Deck)
   * [x] Steam Deck
 * [x] Windows
-* [ ] [macOS (help wanted!)](issues/4)
-* [ ] [Emscripten (help wanted!)](issues/5)
-* [ ] [Consoles (help wanted!)](issues/6)
+* [ ] [macOS (help wanted!)](https://github.com/allyourcodebase/SDL3/issues/4)
+* [ ] [Emscripten (help wanted!)](https://github.com/allyourcodebase/SDL3/issues/5)
+* [ ] [Consoles (help wanted!)](https://github.com/allyourcodebase/SDL3/issues/6)
 
 You can override the default target configuration by setting `default_target_config` to `false`, and then providing your own configuration. This is typically only necessary when your platform doesn't yet have a default configuration:
 ```zig
