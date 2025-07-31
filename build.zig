@@ -124,6 +124,10 @@ pub fn build(b: *std.Build) !void {
         }),
     });
     example.linkLibrary(lib);
+
+    const build_example_step = b.step("example", "Build the example app");
+    build_example_step.dependOn(&example.step);
+
     const run_example = b.addRunArtifact(example);
     const run_step = b.step("run-example", "Run the example app");
     run_step.dependOn(&run_example.step);

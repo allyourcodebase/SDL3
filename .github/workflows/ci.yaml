@@ -34,7 +34,7 @@ jobs:
         run: zig fmt --ast-check --check .
 
       - name: Build for Windows
-        run: zig build -Dtarget=x86_64-windows-gnu --summary all
+        run: zig build example -Dtarget=x86_64-windows-gnu --summary all
 
       - name: Build for Linux
-        run: zig build -Dtarget=x86_64-linux-gnu --summary all
+        run: zig build example -Dtarget=x86_64-linux-gnu --summary all
