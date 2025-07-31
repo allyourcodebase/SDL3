@@ -6,7 +6,7 @@ const c = @cImport({
 pub fn main() void {
     // Initialize SDL
     if (!c.SDL_Init(c.SDL_INIT_VIDEO)) {
-        std.debug.panic("{?s}", .{c.SDL_GetError()});
+        std.debug.panic("{s}", .{c.SDL_GetError()});
     }
     defer c.SDL_Quit();
 
@@ -46,13 +46,13 @@ pub fn main() void {
         const b: f32 = @floatCast(0.5 + 0.5 * @sin(now + std.math.pi * 4 / 3.0));
 
         if (!c.SDL_SetRenderDrawColorFloat(renderer, r, g, b, c.SDL_ALPHA_OPAQUE_FLOAT)) {
-            std.debug.panic("{?s}", .{c.SDL_GetError()});
+            std.debug.panic("{s}", .{c.SDL_GetError()});
         }
         if (!c.SDL_RenderClear(renderer)) {
-            std.debug.panic("{?s}", .{c.SDL_GetError()});
+            std.debug.panic("{s}", .{c.SDL_GetError()});
         }
         if (!c.SDL_RenderPresent(renderer)) {
-            std.debug.panic("{?s}", .{c.SDL_GetError()});
+            std.debug.panic("{s}", .{c.SDL_GetError()});
         }
     }
 }
