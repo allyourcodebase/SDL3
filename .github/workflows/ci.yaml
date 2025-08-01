@@ -16,9 +16,6 @@ jobs:
       matrix:
         zig-version: [master]
         os: [ubuntu-latest, windows-latest]
-        include:
-          - zig-version: "0.15.0-dev.1218+bc8e1a74c"
-            os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout

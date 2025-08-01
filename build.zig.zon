@@ -115,15 +115,7 @@
         .xscrnsaver = .{
             // This dependency must be kept in sync with `xscrnsaver_windows` for similar reasons explained in the `pulseaudio` dependency.
             .url = "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver/-/archive/libXScrnSaver-1.2.4/libxscrnsaver-libXScrnSaver-1.2.4.tar.gz",
-            .hash = "N-V-__8AAMXRAAAKIBB3YHvwcykG71lH-HtylfJ0AV048a7V",
-            .lazy = true,
-        },
-        .xscrnsaver_windows = .{
-            // This is a duplicate of `xscrnsaver`, but with a different hash due to a Zig bug that
-            // results in a different hash on Windows than Linux.
-            .url = "https://gitlab.freedesktop.org/xorg/lib/libxscrnsaver/-/archive/libXScrnSaver-1.2.4/libxscrnsaver-libXScrnSaver-1.2.4.tar.gz",
             .hash = "N-V-__8AAEO3AADhS3i2HiVniZnPqWJh33VqmmUp7JO33xqe",
-            .lazy = true,
         },
         .alsa = .{
             .url = "https://github.com/alsa-project/alsa-lib/archive/refs/tags/v1.2.14.tar.gz",
