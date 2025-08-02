@@ -24,9 +24,12 @@ exe.linkLibrary(sdl.artifact("SDL3"));
 
 Finally, you can use SDL's C API from Zig like this:
 ```zig
-const c = @import("c.zig");
+const std = @import("std");
+const c = @cImport({
+    @cInclude("SDL3/SDL.h");
+});
 if (!c.SDL_Init(c.SDL_INIT_VIDEO)) {
-    panic("SDL_Init failed: {?s}\n", .{c.SDL_GetError()});
+    std.debug.panic("SDL_Init failed: {s}\n", .{c.SDL_GetError()});
 }
 defer c.SDL_Quit();
 ```
