@@ -59,8 +59,8 @@ pub fn build(b: *std.Build) !void {
     }
     lib.root_module.addCMacro("SDL_VENDOR_INFO", std.fmt.comptimePrint("\"{s} {s} (SDL {s})\"", .{
         "https://github.com/Games-by-Mason/sdl_zig",
-        build_zon.dependencies.sdl.version,
         build_zon.version,
+        build_zon.dependencies.sdl.version,
     }));
     lib.installHeadersDirectory(upstream.path("include/SDL3"), "SDL3", .{});
     b.installArtifact(lib);
