@@ -5,9 +5,9 @@
     .minimum_zig_version = "0.15.0-dev.1218+bc8e1a74c",
     .dependencies = .{
         .sdl = .{
-            .url = "https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.2.14.tar.gz",
-            .hash = "N-V-__8AAHRriwPslozjEw46IksOzPlNxJRXM087krt8ynXh",
-            .version = "3.2.14",
+            .url = "https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.2.22.tar.gz",
+            .hash = "N-V-__8AAKFOjAPblBRKaUrjSSH-09iZsd0hSjTHMs3Wj2BE",
+            .version = "3.2.22",
         },
         .dbus = .{
             .version = "1.16.0",
