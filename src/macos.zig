@@ -52,7 +52,7 @@ pub fn build(
 
     // Compile the generic ndd the platform specific sources
     lib.addCSourceFiles(.{
-        .files = &(sources.generic ++ sources.darwin ++ sources.mac ++ sources.pthread),
+        .files = &(sources.darwin ++ sources.mac ++ sources.pthread),
         .root = upstream.path("src"),
         .flags = flags,
     });
