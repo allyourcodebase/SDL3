@@ -435,8 +435,9 @@
         "joystick/bsd/SDL_bsdjoystick.c",
     },
     .darwin = .{
+        "audio/coreaudio/SDL_coreaudio.m",
+        "camera/coremedia/SDL_camera_coremedia.m",
         "gpu/metal/SDL_gpu_metal.m",
-        "haptic/darwin/SDL_syshaptic.c",
         "joystick/apple/SDL_mfijoystick.m",
         "render/metal/SDL_render_metal.m",
     },
@@ -462,11 +463,10 @@
         "haptic/linux/SDL_syshaptic.c",
         "joystick/linux/SDL_sysjoystick.c",
     },
-    .mac = .{
-        "audio/coreaudio/SDL_coreaudio.m",
-        "camera/coremedia/SDL_camera_coremedia.m",
+    .macos = .{
         "dialog/cocoa/SDL_cocoadialog.m",
         "filesystem/cocoa/SDL_sysfilesystem.m",
+        "haptic/darwin/SDL_syshaptic.c",
         "hidapi/mac/hid.c",
         "locale/macos/SDL_syslocale.m",
         "misc/macos/SDL_sysurl.m",

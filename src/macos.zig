@@ -44,7 +44,6 @@ pub fn build(
         "-Wno-unused-local-typedefs",
         "-Wimplicit-fallthrough",
         "-fno-strict-aliasing",
-        // "-fvisibility=hidden",
         "-pthread",
         "-fobjc-arc",
         "-ObjC",
@@ -52,7 +51,7 @@ pub fn build(
 
     // Compile the generic ndd the platform specific sources
     lib.addCSourceFiles(.{
-        .files = &(sources.darwin ++ sources.mac ++ sources.pthread),
+        .files = &(sources.darwin ++ sources.macos ++ sources.pthread),
         .root = upstream.path("src"),
         .flags = flags,
     });
