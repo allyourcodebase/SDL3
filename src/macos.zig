@@ -11,8 +11,6 @@ pub fn build(
     lib: *std.Build.Step.Compile,
     build_config_h: *std.Build.Step.ConfigHeader,
 ) void {
-    _ = target;
-
     const upstream = b.dependency("sdl", .{});
 
     // Add the platform specific dependency include paths
@@ -36,6 +34,21 @@ pub fn build(
     lib.root_module.linkFramework("QuartzCore", .{});
     lib.root_module.linkFramework("CoreHaptics", .{ .weak = true });
 
+    const sdk = if (b.sysroot) |sysroot|
+        sysroot
+    else
+        std.zig.system.darwin.getSdk(b.allocator, &target) orelse
+            @panic("SDK not found");
+
+    b.sysroot = sdk;
+
+    lib.addSystemFrameworkPath(.{
+        .cwd_relative = b.pathJoin(&.{ sdk, "System/Library/Frameworks" }),
+    });
+    lib.addSystemIncludePath(.{
+        .cwd_relative = b.pathJoin(&.{ sdk, "usr/include" }),
+    });
+
     const flags = &.{
         "-Wall",
         "-Wundef",
@@ -49,7 +62,7 @@ pub fn build(
         "-ObjC",
     };
 
-    // Compile the generic ndd the platform specific sources
+    // Add the platform specific sources
     lib.addCSourceFiles(.{
         .files = &(sources.darwin ++ sources.macos ++ sources.pthread),
         .root = upstream.path("src"),

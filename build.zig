@@ -127,6 +127,30 @@ pub fn build(b: *std.Build) !void {
     });
     example.linkLibrary(lib);
 
+    // Inherit platform-specific include paths from lib.
+    // This is necessary on macOS because the example executable needs to
+    // include and link with these frameworks.
+    for (lib.root_module.include_dirs.items) |include_dir| {
+        switch (include_dir) {
+            .path => |path| {
+                example.addIncludePath(path);
+            },
+            .path_system => |path_system| {
+                example.addSystemIncludePath(path_system);
+            },
+            .path_after => |path_after| {
+                example.addAfterIncludePath(path_after);
+            },
+            .framework_path_system => |framework_path_system| {
+                example.addSystemFrameworkPath(framework_path_system);
+            },
+            .framework_path => |framework_path| {
+                example.addFrameworkPath(framework_path);
+            },
+            else => {},
+        }
+    }
+
     const build_example_step = b.step("example", "Build the example app");
     build_example_step.dependOn(&example.step);
 
