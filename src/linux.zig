@@ -635,6 +635,8 @@ pub fn build(
         .HAVE_LIBDECOR_H = 1,
         .HAVE_LIBURING_H = 1,
 
+        .HAVE_SIGTIMEDWAIT = 1,
+
         .USE_POSIX_SPAWN = 1,
 
         // Enable various audio drivers
