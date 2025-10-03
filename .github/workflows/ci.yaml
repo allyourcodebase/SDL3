@@ -35,3 +35,7 @@ jobs:
 
       - name: Build for Linux
         run: zig build example -Dtarget=x86_64-linux-gnu --summary all
+
+      - name: Build for macOS
+        if: runner.os == 'macOS' # TODO: macOS frameworks on Windows/Linux?
+        run: zig build example -Dtarget=aarch64-macos --summary all
