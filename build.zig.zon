@@ -2,7 +2,7 @@
     .name = .sdl,
     .fingerprint = 0xec638ccbd103848b,
     .version = "0.0.0",
-    .minimum_zig_version = "0.15.0-dev.1218+bc8e1a74c",
+    .minimum_zig_version = "0.15.0",
     .dependencies = .{
         .sdl = .{
             .url = "https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.2.22.tar.gz",

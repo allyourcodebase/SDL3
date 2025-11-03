@@ -482,6 +482,7 @@ pub fn build(
     // Set the platform specific build config
     const libdecor_version_string = build_zon.dependencies.decor.version;
     const libdecor_version = comptime std.SemanticVersion.parse(libdecor_version_string) catch unreachable;
+    const have_sigtimedwait: i64 = if (target.os.tag == .openbsd) 0 else 1;
     build_config_h.addValues(.{
         .HAVE_GCC_ATOMICS = 1,
 
@@ -604,6 +605,7 @@ pub fn build(
         .HAVE_POSIX_FALLOCATE = 1,
         .HAVE_SIGACTION = 1,
         .HAVE_SA_SIGACTION = 1,
+        .HAVE_SIGTIMEDWAIT = have_sigtimedwait,
         .HAVE_ST_MTIM = 1,
         .HAVE_SETJMP = 1,
         .HAVE_NANOSLEEP = 1,
