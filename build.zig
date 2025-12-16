@@ -1,6 +1,7 @@
 const std = @import("std");
 const linux = @import("src/linux.zig");
 const windows = @import("src/windows.zig");
+const macos = @import("src/macos.zig");
 const build_zon = @import("build.zig.zon");
 
 const assert = std.debug.assert;
@@ -107,6 +108,7 @@ pub fn build(b: *std.Build) !void {
         switch (target.result.os.tag) {
             .linux => linux.build(b, target.result, lib, build_config_h),
             .windows => windows.build(b, target.result, lib, build_config_h),
+            .macos => macos.build(b, target.result, lib, build_config_h),
             else => @panic("target has no default config"),
         }
     }
