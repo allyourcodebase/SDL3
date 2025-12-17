@@ -84,7 +84,7 @@ This library provides a default configuration for common targets:
 * [x] Linux (including Steam Deck)
   * [x] Steam Deck
 * [x] Windows
-* [ ] [macOS (help wanted!)](https://github.com/allyourcodebase/SDL3/issues/4)
+* [x] macOS (no cross compilation due to Apple licensing)
 * [ ] [Emscripten (help wanted!)](https://github.com/allyourcodebase/SDL3/issues/5)
 * [ ] [Consoles (help wanted!)](https://github.com/allyourcodebase/SDL3/issues/6)
 
