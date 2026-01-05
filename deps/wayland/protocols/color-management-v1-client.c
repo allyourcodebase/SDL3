@@ -51,6 +51,7 @@ extern const struct wl_interface wp_color_management_surface_v1_interface;
 extern const struct wl_interface wp_image_description_creator_icc_v1_interface;
 extern const struct wl_interface wp_image_description_creator_params_v1_interface;
 extern const struct wl_interface wp_image_description_info_v1_interface;
+extern const struct wl_interface wp_image_description_reference_v1_interface;
 extern const struct wl_interface wp_image_description_v1_interface;
 
 static const struct wl_interface *color_management_v1_types[] = {
@@ -72,6 +73,8 @@ static const struct wl_interface *color_management_v1_types[] = {
 	&wp_image_description_creator_params_v1_interface,
 	&wp_image_description_v1_interface,
 	&wp_image_description_v1_interface,
+	&wp_image_description_reference_v1_interface,
+	&wp_image_description_v1_interface,
 	&wp_image_description_v1_interface,
 	NULL,
 	&wp_image_description_v1_interface,
@@ -89,6 +92,7 @@ static const struct wl_message wp_color_manager_v1_requests[] = {
 	{ "create_icc_creator", "n", color_management_v1_types + 14 },
 	{ "create_parametric_creator", "n", color_management_v1_types + 15 },
 	{ "create_windows_scrgb", "n", color_management_v1_types + 16 },
+	{ "get_image_description", "2no", color_management_v1_types + 17 },
 };
 
 static const struct wl_message wp_color_manager_v1_events[] = {
@@ -100,14 +104,14 @@ static const struct wl_message wp_color_manager_v1_events[] = {
 };
 
 WL_PRIVATE const struct wl_interface wp_color_manager_v1_interface = {
-	"wp_color_manager_v1", 1,
-	7, wp_color_manager_v1_requests,
+	"wp_color_manager_v1", 2,
+	8, wp_color_manager_v1_requests,
 	5, wp_color_manager_v1_events,
 };
 
 static const struct wl_message wp_color_management_output_v1_requests[] = {
 	{ "destroy", "", color_management_v1_types + 0 },
-	{ "get_image_description", "n", color_management_v1_types + 17 },
+	{ "get_image_description", "n", color_management_v1_types + 19 },
 };
 
 static const struct wl_message wp_color_management_output_v1_events[] = {
@@ -115,52 +119,53 @@ static const struct wl_message wp_color_management_output_v1_events[] = {
 };
 
 WL_PRIVATE const struct wl_interface wp_color_management_output_v1_interface = {
-	"wp_color_management_output_v1", 1,
+	"wp_color_management_output_v1", 2,
 	2, wp_color_management_output_v1_requests,
 	1, wp_color_management_output_v1_events,
 };
 
 static const struct wl_message wp_color_management_surface_v1_requests[] = {
 	{ "destroy", "", color_management_v1_types + 0 },
-	{ "set_image_description", "ou", color_management_v1_types + 18 },
+	{ "set_image_description", "ou", color_management_v1_types + 20 },
 	{ "unset_image_description", "", color_management_v1_types + 0 },
 };
 
 WL_PRIVATE const struct wl_interface wp_color_management_surface_v1_interface = {
-	"wp_color_management_surface_v1", 1,
+	"wp_color_management_surface_v1", 2,
 	3, wp_color_management_surface_v1_requests,
 	0, NULL,
 };
 
 static const struct wl_message wp_color_management_surface_feedback_v1_requests[] = {
 	{ "destroy", "", color_management_v1_types + 0 },
-	{ "get_preferred", "n", color_management_v1_types + 20 },
-	{ "get_preferred_parametric", "n", color_management_v1_types + 21 },
+	{ "get_preferred", "n", color_management_v1_types + 22 },
+	{ "get_preferred_parametric", "n", color_management_v1_types + 23 },
 };
 
 static const struct wl_message wp_color_management_surface_feedback_v1_events[] = {
 	{ "preferred_changed", "u", color_management_v1_types + 0 },
+	{ "preferred_changed2", "2uu", color_management_v1_types + 0 },
 };
 
 WL_PRIVATE const struct wl_interface wp_color_management_surface_feedback_v1_interface = {
-	"wp_color_management_surface_feedback_v1", 1,
+	"wp_color_management_surface_feedback_v1", 2,
 	3, wp_color_management_surface_feedback_v1_requests,
-	1, wp_color_management_surface_feedback_v1_events,
+	2, wp_color_management_surface_feedback_v1_events,
 };
 
 static const struct wl_message wp_image_description_creator_icc_v1_requests[] = {
-	{ "create", "n", color_management_v1_types + 22 },
+	{ "create", "n", color_management_v1_types + 24 },
 	{ "set_icc_file", "huu", color_management_v1_types + 0 },
 };
 
 WL_PRIVATE const struct wl_interface wp_image_description_creator_icc_v1_interface = {
-	"wp_image_description_creator_icc_v1", 1,
+	"wp_image_description_creator_icc_v1", 2,
 	2, wp_image_description_creator_icc_v1_requests,
 	0, NULL,
 };
 
 static const struct wl_message wp_image_description_creator_params_v1_requests[] = {
-	{ "create", "n", color_management_v1_types + 23 },
+	{ "create", "n", color_management_v1_types + 25 },
 	{ "set_tf_named", "u", color_management_v1_types + 0 },
 	{ "set_tf_power", "u", color_management_v1_types + 0 },
 	{ "set_primaries_named", "u", color_management_v1_types + 0 },
@@ -173,25 +178,26 @@ static const struct wl_message wp_image_description_creator_params_v1_requests[]
 };
 
 WL_PRIVATE const struct wl_interface wp_image_description_creator_params_v1_interface = {
-	"wp_image_description_creator_params_v1", 1,
+	"wp_image_description_creator_params_v1", 2,
 	10, wp_image_description_creator_params_v1_requests,
 	0, NULL,
 };
 
 static const struct wl_message wp_image_description_v1_requests[] = {
 	{ "destroy", "", color_management_v1_types + 0 },
-	{ "get_information", "n", color_management_v1_types + 24 },
+	{ "get_information", "n", color_management_v1_types + 26 },
 };
 
 static const struct wl_message wp_image_description_v1_events[] = {
 	{ "failed", "us", color_management_v1_types + 0 },
 	{ "ready", "u", color_management_v1_types + 0 },
+	{ "ready2", "2uu", color_management_v1_types + 0 },
 };
 
 WL_PRIVATE const struct wl_interface wp_image_description_v1_interface = {
-	"wp_image_description_v1", 1,
+	"wp_image_description_v1", 2,
 	2, wp_image_description_v1_requests,
-	2, wp_image_description_v1_events,
+	3, wp_image_description_v1_events,
 };
 
 static const struct wl_message wp_image_description_info_v1_events[] = {
@@ -209,8 +215,18 @@ static const struct wl_message wp_image_description_info_v1_events[] = {
 };
 
 WL_PRIVATE const struct wl_interface wp_image_description_info_v1_interface = {
-	"wp_image_description_info_v1", 1,
+	"wp_image_description_info_v1", 2,
 	0, NULL,
 	11, wp_image_description_info_v1_events,
+};
+
+static const struct wl_message wp_image_description_reference_v1_requests[] = {
+	{ "destroy", "", color_management_v1_types + 0 },
+};
+
+WL_PRIVATE const struct wl_interface wp_image_description_reference_v1_interface = {
+	"wp_image_description_reference_v1", 1,
+	1, wp_image_description_reference_v1_requests,
+	0, NULL,
 };
 

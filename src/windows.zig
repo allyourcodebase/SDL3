@@ -53,6 +53,7 @@ pub fn build(
         .HAVE_DSOUND_H = 1,
         .HAVE_DXGI_H = 1,
         .HAVE_XINPUT_H = 1,
+        .HAVE_DXGI1_5_H = 1,
         .HAVE_DXGI1_6_H = 1,
         .HAVE_D3D11_H = 1,
         .HAVE_ROAPI_H = 1,
@@ -253,5 +254,12 @@ pub fn build(
         .SDL_LIBDECOR_VERSION_MAJOR = "",
         .SDL_LIBDECOR_VERSION_MINOR = "",
         .SDL_LIBDECOR_VERSION_PATCH = "",
+        .SDL_FRIBIDI_DYNAMIC = "",
+        .SDL_LIBTHAI_DYNAMIC = "",
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XTEST = "",
+        .SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_GESTURE = "",
+        .SDL_XKBCOMMON_VERSION_MAJOR = "",
+        .SDL_XKBCOMMON_VERSION_MINOR = "",
+        .SDL_XKBCOMMON_VERSION_PATCH = "",
     });
 }

@@ -19,9 +19,14 @@ extern "C" {
  *
  * The aim of the color management extension is to allow clients to know
  * the color properties of outputs, and to tell the compositor about the color
- * properties of their content on surfaces. Doing this enables a compositor
- * to perform automatic color management of content for different outputs
- * according to how content is intended to look like.
+ * properties of their content on surfaces. All surface contents must be
+ * readily intended for some display, but not necessarily for the display at
+ * hand. Doing this enables a compositor to perform automatic color management
+ * of content for different outputs according to how content is intended to
+ * look like.
+ *
+ * For an introduction, see the section "Color management" in the Wayland
+ * documentation at https://wayland.freedesktop.org/docs/html/ .
  *
  * The color properties are represented as an image description object which
  * is immutable after it has been created. A wl_output always has an
@@ -31,16 +36,17 @@ extern "C" {
  * description on a wl_surface to denote the color characteristics of the
  * surface contents.
  *
- * An image description includes SDR and HDR colorimetry and encoding, HDR
- * metadata, and viewing environment parameters. An image description does
- * not include the properties set through color-representation extension.
- * It is expected that the color-representation extension is used in
- * conjunction with the color management extension when necessary,
- * particularly with the YUV family of pixel formats.
+ * An image description essentially defines a display and (indirectly) its
+ * viewing environment. An image description includes SDR and HDR colorimetry
+ * and encoding, HDR metadata, and some parameters related to the viewing
+ * environment. An image description does not include the properties set
+ * through color-representation extension. It is expected that the
+ * color-representation extension is used in conjunction with the
+ * color-management extension when necessary, particularly with the YUV family
+ * of pixel formats.
  *
- * Recommendation ITU-T H.273
- * "Coding-independent code points for video signal type identification"
- * shall be referred to as simply H.273 here.
+ * The normative appendix for this protocol is in the appendix.md file beside
+ * this XML file.
  *
  * The color-and-hdr repository
  * (https://gitlab.freedesktop.org/pq/color-and-hdr) contains
@@ -67,6 +73,7 @@ extern "C" {
  * - @subpage page_iface_wp_image_description_creator_params_v1 - holder of image description parameters
  * - @subpage page_iface_wp_image_description_v1 - Colorimetric image description
  * - @subpage page_iface_wp_image_description_info_v1 - Colorimetric image description information
+ * - @subpage page_iface_wp_image_description_reference_v1 - Reference to an image description
  * @section page_copyright_color_management_v1 Copyright
  * <pre>
  *
@@ -106,6 +113,7 @@ struct wp_color_manager_v1;
 struct wp_image_description_creator_icc_v1;
 struct wp_image_description_creator_params_v1;
 struct wp_image_description_info_v1;
+struct wp_image_description_reference_v1;
 struct wp_image_description_v1;
 
 #ifndef WP_COLOR_MANAGER_V1_INTERFACE
@@ -236,6 +244,10 @@ extern const struct wl_interface wp_color_management_surface_feedback_v1_interfa
  * Once all properties have been set, the create request must be used to
  * create the image description object, destroying the creator in the
  * process.
+ *
+ * The link between a pixel value (a device value in ICC) and its respective
+ * colorimetry is defined by the details of the particular ICC profile.
+ * Those details also determine when colorimetry becomes undefined.
  * @section page_iface_wp_image_description_creator_icc_v1_api API
  * See @ref iface_wp_image_description_creator_icc_v1.
  */
@@ -256,6 +268,10 @@ extern const struct wl_interface wp_color_management_surface_feedback_v1_interfa
  * Once all properties have been set, the create request must be used to
  * create the image description object, destroying the creator in the
  * process.
+ *
+ * The link between a pixel value (a device value in ICC) and its respective
+ * colorimetry is defined by the details of the particular ICC profile.
+ * Those details also determine when colorimetry becomes undefined.
  */
 extern const struct wl_interface wp_image_description_creator_icc_v1_interface;
 #endif
@@ -292,6 +308,20 @@ extern const struct wl_interface wp_image_description_creator_icc_v1_interface;
  * Once all properties have been set, the create request must be used to
  * create the image description object, destroying the creator in the
  * process.
+ *
+ * A viewer, who is viewing the display defined by the resulting image
+ * description (the viewing environment included), is assumed to be fully
+ * adapted to the primary color volume's white point.
+ *
+ * Any of the following conditions will cause the colorimetry of a pixel
+ * to become undefined:
+ * - Values outside of the defined range of the transfer characteristic.
+ * - Tristimulus that exceeds the target color volume.
+ * - If extended_target_volume is not supported: tristimulus that exceeds
+ * the primary color volume.
+ *
+ * The closest correspondence to an image description created through this
+ * interface is the Display class of profiles in ICC.
  * @section page_iface_wp_image_description_creator_params_v1_api API
  * See @ref iface_wp_image_description_creator_params_v1.
  */
@@ -325,6 +355,20 @@ extern const struct wl_interface wp_image_description_creator_icc_v1_interface;
  * Once all properties have been set, the create request must be used to
  * create the image description object, destroying the creator in the
  * process.
+ *
+ * A viewer, who is viewing the display defined by the resulting image
+ * description (the viewing environment included), is assumed to be fully
+ * adapted to the primary color volume's white point.
+ *
+ * Any of the following conditions will cause the colorimetry of a pixel
+ * to become undefined:
+ * - Values outside of the defined range of the transfer characteristic.
+ * - Tristimulus that exceeds the target color volume.
+ * - If extended_target_volume is not supported: tristimulus that exceeds
+ * the primary color volume.
+ *
+ * The closest correspondence to an image description created through this
+ * interface is the Display class of profiles in ICC.
  */
 extern const struct wl_interface wp_image_description_creator_params_v1_interface;
 #endif
@@ -334,11 +378,13 @@ extern const struct wl_interface wp_image_description_creator_params_v1_interfac
  * @page page_iface_wp_image_description_v1 wp_image_description_v1
  * @section page_iface_wp_image_description_v1_desc Description
  *
- * An image description carries information about the color encoding used on
- * a surface when attached to a wl_surface via
+ * An image description carries information about the pixel color encoding
+ * and its intended display and viewing environment. The image description is
+ * attached to a wl_surface via
  * wp_color_management_surface_v1.set_image_description. A compositor can use
  * this information to decode pixel values into colorimetrically meaningful
- * quantities.
+ * quantities, which allows the compositor to transform the surface contents
+ * to become suitable for various displays and viewing environments.
  *
  * Note, that the wp_image_description_v1 object is not ready to be used
  * immediately after creation. The object eventually delivers either the
@@ -359,11 +405,13 @@ extern const struct wl_interface wp_image_description_creator_params_v1_interfac
 /**
  * @defgroup iface_wp_image_description_v1 The wp_image_description_v1 interface
  *
- * An image description carries information about the color encoding used on
- * a surface when attached to a wl_surface via
+ * An image description carries information about the pixel color encoding
+ * and its intended display and viewing environment. The image description is
+ * attached to a wl_surface via
  * wp_color_management_surface_v1.set_image_description. A compositor can use
  * this information to decode pixel values into colorimetrically meaningful
- * quantities.
+ * quantities, which allows the compositor to transform the surface contents
+ * to become suitable for various displays and viewing environments.
  *
  * Note, that the wp_image_description_v1 object is not ready to be used
  * immediately after creation. The object eventually delivers either the
@@ -440,6 +488,33 @@ extern const struct wl_interface wp_image_description_v1_interface;
  */
 extern const struct wl_interface wp_image_description_info_v1_interface;
 #endif
+#ifndef WP_IMAGE_DESCRIPTION_REFERENCE_V1_INTERFACE
+#define WP_IMAGE_DESCRIPTION_REFERENCE_V1_INTERFACE
+/**
+ * @page page_iface_wp_image_description_reference_v1 wp_image_description_reference_v1
+ * @section page_iface_wp_image_description_reference_v1_desc Description
+ *
+ * This object is a reference to an image description. This interface is
+ * frozen at version 1 to allow other protocols to create
+ * wp_image_description_v1 objects.
+ *
+ * The wp_color_manager_v1.get_image_description request can be used to
+ * retrieve the underlying image description.
+ * @section page_iface_wp_image_description_reference_v1_api API
+ * See @ref iface_wp_image_description_reference_v1.
+ */
+/**
+ * @defgroup iface_wp_image_description_reference_v1 The wp_image_description_reference_v1 interface
+ *
+ * This object is a reference to an image description. This interface is
+ * frozen at version 1 to allow other protocols to create
+ * wp_image_description_v1 objects.
+ *
+ * The wp_color_manager_v1.get_image_description request can be used to
+ * retrieve the underlying image description.
+ */
+extern const struct wl_interface wp_image_description_reference_v1_interface;
+#endif
 
 #ifndef WP_COLOR_MANAGER_V1_ERROR_ENUM
 #define WP_COLOR_MANAGER_V1_ERROR_ENUM
@@ -491,7 +566,21 @@ enum wp_color_manager_v1_render_intent {
 	 * media-relative colorimetric + black point compensation
 	 */
 	WP_COLOR_MANAGER_V1_RENDER_INTENT_RELATIVE_BPC = 4,
+	/**
+	 * ICC-absolute colorimetric without adaptation
+	 *
+	 * This rendering intent is a modified absolute rendering intent
+	 * that assumes the viewer is not adapted to the display white
+	 * point, so no chromatic adaptation between surface and display is
+	 * done. This can be useful for color proofing applications.
+	 * @since 2
+	 */
+	WP_COLOR_MANAGER_V1_RENDER_INTENT_ABSOLUTE_NO_ADAPTATION = 5,
 };
+/**
+ * @ingroup iface_wp_color_manager_v1
+ */
+#define WP_COLOR_MANAGER_V1_RENDER_INTENT_ABSOLUTE_NO_ADAPTATION_SINCE_VERSION 2
 #endif /* WP_COLOR_MANAGER_V1_RENDER_INTENT_ENUM */
 
 #ifndef WP_COLOR_MANAGER_V1_FEATURE_ENUM
@@ -540,7 +629,7 @@ enum wp_color_manager_v1_feature {
 	 */
 	WP_COLOR_MANAGER_V1_FEATURE_EXTENDED_TARGET_VOLUME = 6,
 	/**
-	 * get_windows_scrgb request
+	 * create_windows_scrgb request
 	 */
 	WP_COLOR_MANAGER_V1_FEATURE_WINDOWS_SCRGB = 7,
 };
@@ -552,13 +641,9 @@ enum wp_color_manager_v1_feature {
  * @ingroup iface_wp_color_manager_v1
  * named color primaries
  *
- * Named color primaries used to encode well-known sets of primaries. H.273
- * is the authority, when it comes to the exact values of primaries and
- * authoritative specifications, where an equivalent code point exists.
+ * Named color primaries used to encode well-known sets of primaries.
  *
  * A value of 0 is invalid and will never be present in the list of enums.
- *
- * Descriptions do list the specifications for convenience.
  */
 enum wp_color_manager_v1_primaries {
 	/**
@@ -568,8 +653,7 @@ enum wp_color_manager_v1_primaries {
 	 * ITU-R BT.1361-0 conventional colour gamut system and extended
 	 * colour gamut system (historical) - IEC 61966-2-1 sRGB or sYCC -
 	 * IEC 61966-2-4 - Society of Motion Picture and Television
-	 * Engineers (SMPTE) RP 177 (1993) Annex B Equivalent to H.273
-	 * ColourPrimaries code point 1.
+	 * Engineers (SMPTE) RP 177 (1993) Annex B
 	 */
 	WP_COLOR_MANAGER_V1_PRIMARIES_SRGB = 1,
 	/**
@@ -580,7 +664,7 @@ enum wp_color_manager_v1_primaries {
 	 * Committee 1953 Recommendation for transmission standards for
 	 * color television - United States Federal Communications
 	 * Commission (2003) Title 47 Code of Federal Regulations 73.682
-	 * (a)(20) Equivalent to H.273 ColourPrimaries code point 4.
+	 * (a)(20)
 	 */
 	WP_COLOR_MANAGER_V1_PRIMARIES_PAL_M = 2,
 	/**
@@ -589,7 +673,6 @@ enum wp_color_manager_v1_primaries {
 	 * Color primaries as defined by - Rec. ITU-R BT.470-6 System B,
 	 * G (historical) - Rec. ITU-R BT.601-7 625 - Rec. ITU-R BT.1358-0
 	 * 625 (historical) - Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM
-	 * Equivalent to H.273 ColourPrimaries code point 5.
 	 */
 	WP_COLOR_MANAGER_V1_PRIMARIES_PAL = 3,
 	/**
@@ -598,22 +681,21 @@ enum wp_color_manager_v1_primaries {
 	 * Color primaries as defined by - Rec. ITU-R BT.601-7 525 - Rec.
 	 * ITU-R BT.1358-1 525 or 625 (historical) - Rec. ITU-R BT.1700-0
 	 * NTSC - SMPTE 170M (2004) - SMPTE 240M (1999) (historical)
-	 * Equivalent to H.273 ColourPrimaries code point 6 and 7.
 	 */
 	WP_COLOR_MANAGER_V1_PRIMARIES_NTSC = 4,
 	/**
 	 * Generic film with colour filters using Illuminant C
 	 *
-	 * Color primaries as defined by H.273 for generic film.
-	 * Equivalent to H.273 ColourPrimaries code point 8.
+	 * Color primaries as defined by Recommendation ITU-T H.273
+	 * "Coding-independent code points for video signal type
+	 * identification" for "generic film".
 	 */
 	WP_COLOR_MANAGER_V1_PRIMARIES_GENERIC_FILM = 5,
 	/**
 	 * Color primaries as defined by the BT.2020 and BT.2100 standard
 	 *
 	 * Color primaries as defined by - Rec. ITU-R BT.2020-2 - Rec.
-	 * ITU-R BT.2100-0 Equivalent to H.273 ColourPrimaries code point
-	 * 9.
+	 * ITU-R BT.2100-0
 	 */
 	WP_COLOR_MANAGER_V1_PRIMARIES_BT2020 = 6,
 	/**
@@ -621,23 +703,21 @@ enum wp_color_manager_v1_primaries {
 	 *
 	 * Color primaries as defined as the maximum of the CIE 1931 XYZ
 	 * color space by - SMPTE ST 428-1 - (CIE 1931 XYZ as in ISO
-	 * 11664-1) Equivalent to H.273 ColourPrimaries code point 10.
+	 * 11664-1)
 	 */
 	WP_COLOR_MANAGER_V1_PRIMARIES_CIE1931_XYZ = 7,
 	/**
 	 * Color primaries of the DCI P3 color space as defined by the SMPTE RP 431 standard
 	 *
 	 * Color primaries as defined by Digital Cinema System and
-	 * published in SMPTE RP 431-2 (2011). Equivalent to H.273
-	 * ColourPrimaries code point 11.
+	 * published in SMPTE RP 431-2 (2011).
 	 */
 	WP_COLOR_MANAGER_V1_PRIMARIES_DCI_P3 = 8,
 	/**
 	 * Color primaries of Display P3 variant of the DCI-P3 color space as defined by the SMPTE EG 432 standard
 	 *
 	 * Color primaries as defined by Digital Cinema System and
-	 * published in SMPTE EG 432-1 (2010). Equivalent to H.273
-	 * ColourPrimaries code point 12.
+	 * published in SMPTE EG 432-1 (2010).
 	 */
 	WP_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3 = 9,
 	/**
@@ -657,13 +737,11 @@ enum wp_color_manager_v1_primaries {
  * named transfer functions
  *
  * Named transfer functions used to represent well-known transfer
- * characteristics. H.273 is the authority, when it comes to the exact
- * formulas and authoritative specifications, where an equivalent code
- * point exists.
+ * characteristics of displays.
  *
  * A value of 0 is invalid and will never be present in the list of enums.
  *
- * Descriptions do list the specifications for convenience.
+ * See appendix.md for the formulae.
  */
 enum wp_color_manager_v1_transfer_function {
 	/**
@@ -671,9 +749,7 @@ enum wp_color_manager_v1_transfer_function {
 	 *
 	 * Rec. ITU-R BT.1886 is the display transfer characteristic
 	 * assumed by - Rec. ITU-R BT.601-7 525 and 625 - Rec. ITU-R
-	 * BT.709-6 - Rec. ITU-R BT.2020-2 These recommendations are
-	 * referred to by H.273 TransferCharacteristics code points 1, 6,
-	 * 14, and 15, which are all equivalent.
+	 * BT.709-6 - Rec. ITU-R BT.2020-2
 	 *
 	 * This TF implies these default luminances from Rec. ITU-R
 	 * BT.2035: - primary color volume minimum: 0.01 cd/m² - primary
@@ -688,23 +764,21 @@ enum wp_color_manager_v1_transfer_function {
 	 * Committee 1953 Recommendation for transmission standards for
 	 * color television - United States Federal Communications
 	 * Commission (2003) Title 47 Code of Federal Regulations 73.682
-	 * (a) (20) - Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM Equivalent
-	 * to H.273 TransferCharacteristics code point 4.
+	 * (a) (20) - Rec. ITU-R BT.1700-0 625 PAL and 625 SECAM - IEC
+	 * 61966-2-1 (reference display)
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA22 = 2,
 	/**
 	 * Assumed display gamma 2.8 transfer function
 	 *
 	 * Transfer characteristics as defined by - Rec. ITU-R BT.470-6
-	 * System B, G (historical) Equivalent to H.273
-	 * TransferCharacteristics code point 5.
+	 * System B, G (historical)
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA28 = 3,
 	/**
 	 * SMPTE ST 240 transfer function
 	 *
 	 * Transfer characteristics as defined by - SMPTE ST 240 (1999)
-	 * Equivalent to H.273 TransferCharacteristics code point 7.
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST240 = 4,
 	/**
@@ -713,47 +787,43 @@ enum wp_color_manager_v1_transfer_function {
 	 * Linear transfer function defined over all real numbers.
 	 * Normalised electrical values are equal the normalised optical
 	 * values.
-	 *
-	 * The differences to H.273 TransferCharacteristics code point 8
-	 * are the definition over all real numbers.
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_EXT_LINEAR = 5,
 	/**
 	 * logarithmic 100:1 transfer function
 	 *
-	 * Logarithmic transfer characteristic (100:1 range). Equivalent
-	 * to H.273 TransferCharacteristics code point 9.
+	 * Logarithmic transfer characteristic (100:1 range).
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_LOG_100 = 6,
 	/**
 	 * logarithmic (100*Sqrt(10) : 1) transfer function
 	 *
 	 * Logarithmic transfer characteristic (100 * Sqrt(10) : 1
-	 * range). Equivalent to H.273 TransferCharacteristics code point
-	 * 10.
+	 * range).
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_LOG_316 = 7,
 	/**
 	 * IEC 61966-2-4 transfer function
 	 *
 	 * Transfer characteristics as defined by - IEC 61966-2-4
-	 * Equivalent to H.273 TransferCharacteristics code point 11.
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_XVYCC = 8,
 	/**
-	 * sRGB piece-wise transfer function
+	 * Deprecated (ambiguous sRGB transfer function)
 	 *
 	 * Transfer characteristics as defined by - IEC 61966-2-1 sRGB
-	 * Equivalent to H.273 TransferCharacteristics code point 13 with
-	 * MatrixCoefficients set to 0.
+	 *
+	 * As a rule of thumb, use gamma22 for video, motion picture and
+	 * computer graphics, or compound_power_2_4 for ICC calibrated
+	 * print workflows.
+	 * @deprecated Deprecated since version 2
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB = 9,
 	/**
-	 * Extended sRGB piece-wise transfer function
+	 * Deprecated (Extended sRGB piece-wise transfer function)
 	 *
 	 * Transfer characteristics as defined by - IEC 61966-2-1 sYCC
-	 * Equivalent to H.273 TransferCharacteristics code point 13 with
-	 * MatrixCoefficients set to anything but 0.
+	 * @deprecated Deprecated since version 2
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_EXT_SRGB = 10,
 	/**
@@ -761,8 +831,7 @@ enum wp_color_manager_v1_transfer_function {
 	 *
 	 * Transfer characteristics as defined by - SMPTE ST 2084 (2014)
 	 * for 10-, 12-, 14- and 16-bit systems - Rec. ITU-R BT.2100-2
-	 * perceptual quantization (PQ) system Equivalent to H.273
-	 * TransferCharacteristics code point 16.
+	 * perceptual quantization (PQ) system
 	 *
 	 * This TF implies these default luminances - primary color volume
 	 * minimum: 0.005 cd/m² - primary color volume maximum: 10000
@@ -779,15 +848,13 @@ enum wp_color_manager_v1_transfer_function {
 	 * SMPTE ST 428 transfer function
 	 *
 	 * Transfer characteristics as defined by - SMPTE ST 428-1 (2019)
-	 * Equivalent to H.273 TransferCharacteristics code point 17.
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST428 = 12,
 	/**
 	 * hybrid log-gamma transfer function
 	 *
 	 * Transfer characteristics as defined by - ARIB STD-B67 (2015) -
-	 * Rec. ITU-R BT.2100-2 hybrid log-gamma (HLG) system Equivalent to
-	 * H.273 TransferCharacteristics code point 18.
+	 * Rec. ITU-R BT.2100-2 hybrid log-gamma (HLG) system
 	 *
 	 * This TF implies these default luminances - primary color volume
 	 * minimum: 0.005 cd/m² - primary color volume maximum: 1000
@@ -803,7 +870,19 @@ enum wp_color_manager_v1_transfer_function {
 	 * part of ARIB STD-B67 or BT.2100.
 	 */
 	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_HLG = 13,
+	/**
+	 * IEC 61966-2-1 encoding function
+	 *
+	 * Encoding characteristics as defined by IEC 61966-2-1, for
+	 * displays that invert the encoding function.
+	 * @since 2
+	 */
+	WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_COMPOUND_POWER_2_4 = 14,
 };
+/**
+ * @ingroup iface_wp_color_manager_v1
+ */
+#define WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_COMPOUND_POWER_2_4_SINCE_VERSION 2
 #endif /* WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ENUM */
 
 /**
@@ -816,6 +895,9 @@ struct wp_color_manager_v1_listener {
 	 *
 	 * When this object is created, it shall immediately send this
 	 * event once for each rendering intent the compositor supports.
+	 *
+	 * A compositor must not advertise intents that are deprecated in
+	 * the bound version of the interface.
 	 * @param render_intent rendering intent
 	 */
 	void (*supported_intent)(void *data,
@@ -827,6 +909,9 @@ struct wp_color_manager_v1_listener {
 	 * When this object is created, it shall immediately send this
 	 * event once for each compositor supported feature listed in the
 	 * enumeration.
+	 *
+	 * A compositor must not advertise features that are deprecated in
+	 * the bound version of the interface.
 	 * @param feature supported feature
 	 */
 	void (*supported_feature)(void *data,
@@ -838,6 +923,9 @@ struct wp_color_manager_v1_listener {
 	 * When this object is created, it shall immediately send this
 	 * event once for each named transfer function the compositor
 	 * supports with the parametric image description creator.
+	 *
+	 * A compositor must not advertise transfer functions that are
+	 * deprecated in the bound version of the interface.
 	 * @param tf Named transfer function
 	 */
 	void (*supported_tf_named)(void *data,
@@ -849,6 +937,9 @@ struct wp_color_manager_v1_listener {
 	 * When this object is created, it shall immediately send this
 	 * event once for each named set of primaries the compositor
 	 * supports with the parametric image description creator.
+	 *
+	 * A compositor must not advertise names that are deprecated in the
+	 * bound version of the interface.
 	 * @param primaries Named color primaries
 	 */
 	void (*supported_primaries_named)(void *data,
@@ -882,6 +973,7 @@ wp_color_manager_v1_add_listener(struct wp_color_manager_v1 *wp_color_manager_v1
 #define WP_COLOR_MANAGER_V1_CREATE_ICC_CREATOR 4
 #define WP_COLOR_MANAGER_V1_CREATE_PARAMETRIC_CREATOR 5
 #define WP_COLOR_MANAGER_V1_CREATE_WINDOWS_SCRGB 6
+#define WP_COLOR_MANAGER_V1_GET_IMAGE_DESCRIPTION 7
 
 /**
  * @ingroup iface_wp_color_manager_v1
@@ -932,6 +1024,10 @@ wp_color_manager_v1_add_listener(struct wp_color_manager_v1 *wp_color_manager_v1
  * @ingroup iface_wp_color_manager_v1
  */
 #define WP_COLOR_MANAGER_V1_CREATE_WINDOWS_SCRGB_SINCE_VERSION 1
+/**
+ * @ingroup iface_wp_color_manager_v1
+ */
+#define WP_COLOR_MANAGER_V1_GET_IMAGE_DESCRIPTION_SINCE_VERSION 2
 
 /** @ingroup iface_wp_color_manager_v1 */
 static inline void
@@ -1128,6 +1224,25 @@ wp_color_manager_v1_create_windows_scrgb(struct wp_color_manager_v1 *wp_color_ma
 
 	image_description = wl_proxy_marshal_flags((struct wl_proxy *) wp_color_manager_v1,
 			 WP_COLOR_MANAGER_V1_CREATE_WINDOWS_SCRGB, &wp_image_description_v1_interface, wl_proxy_get_version((struct wl_proxy *) wp_color_manager_v1), 0, NULL);
+
+	return (struct wp_image_description_v1 *) image_description;
+}
+
+/**
+ * @ingroup iface_wp_color_manager_v1
+ *
+ * This request retrieves the image description backing a reference.
+ *
+ * The get_information request can be used if and only if the request that
+ * creates the reference allows it.
+ */
+static inline struct wp_image_description_v1 *
+wp_color_manager_v1_get_image_description(struct wp_color_manager_v1 *wp_color_manager_v1, struct wp_image_description_reference_v1 *reference)
+{
+	struct wl_proxy *image_description;
+
+	image_description = wl_proxy_marshal_flags((struct wl_proxy *) wp_color_manager_v1,
+			 WP_COLOR_MANAGER_V1_GET_IMAGE_DESCRIPTION, &wp_image_description_v1_interface, wl_proxy_get_version((struct wl_proxy *) wp_color_manager_v1), 0, NULL, reference);
 
 	return (struct wp_image_description_v1 *) image_description;
 }
@@ -1353,17 +1468,17 @@ wp_color_management_surface_v1_destroy(struct wp_color_management_surface_v1 *wp
  * All image descriptions which are ready (see wp_image_description_v1)
  * are allowed and must always be accepted by the compositor.
  *
- * A rendering intent provides the client's preference on how content
- * colors should be mapped to each output. The render_intent value must
- * be one advertised by the compositor with
+ * When an image description is set on a surface, it establishes an
+ * explicit link between surface pixel values and surface colorimetry.
+ * This link may be undefined for some pixel values, see the image
+ * description creator interfaces for the conditions. Non-finite
+ * floating-point values (NaN, Inf) always have an undefined colorimetry.
+ *
+ * A rendering intent provides the client's preference on how surface
+ * colorimetry should be mapped to each output. The render_intent value
+ * must be one advertised by the compositor with
  * wp_color_manager_v1.render_intent event, otherwise the protocol error
  * render_intent is raised.
- *
- * When an image description is set on a surface, the Transfer
- * Characteristics of the image description defines the valid range of
- * the nominal (real-valued) color channel values. The processing of
- * out-of-range color channel values is undefined, but compositors are
- * recommended to clamp the values to the valid range when possible.
  *
  * By default, a surface does not have an associated image description
  * nor a rendering intent. The handling of color on such surfaces is
@@ -1423,6 +1538,18 @@ enum wp_color_management_surface_feedback_v1_error {
  */
 struct wp_color_management_surface_feedback_v1_listener {
 	/**
+	 * the preferred image description changed (32-bit)
+	 *
+	 * Starting from interface version 2, 'preferred_changed2' is
+	 * sent instead of this event. See the 'preferred_changed2' event
+	 * for the definition.
+	 * @param identity the 32-bit image description id number
+	 * @deprecated Deprecated since version 2
+	 */
+	void (*preferred_changed)(void *data,
+				  struct wp_color_management_surface_feedback_v1 *wp_color_management_surface_feedback_v1,
+				  uint32_t identity);
+	/**
 	 * the preferred image description changed
 	 *
 	 * The preferred image description is the one which likely has
@@ -1444,11 +1571,14 @@ struct wp_color_management_surface_feedback_v1_listener {
 	 * wl_surface contents in the preferred image description.
 	 * Therefore clients that can, should render according to the
 	 * preferred image description
-	 * @param identity image description id number
+	 * @param identity_hi high 32 bits of the 64-bit image description id number
+	 * @param identity_lo low 32 bits of the 64-bit image description id number
+	 * @since 2
 	 */
-	void (*preferred_changed)(void *data,
-				  struct wp_color_management_surface_feedback_v1 *wp_color_management_surface_feedback_v1,
-				  uint32_t identity);
+	void (*preferred_changed2)(void *data,
+				   struct wp_color_management_surface_feedback_v1 *wp_color_management_surface_feedback_v1,
+				   uint32_t identity_hi,
+				   uint32_t identity_lo);
 };
 
 /**
@@ -1470,6 +1600,10 @@ wp_color_management_surface_feedback_v1_add_listener(struct wp_color_management_
  * @ingroup iface_wp_color_management_surface_feedback_v1
  */
 #define WP_COLOR_MANAGEMENT_SURFACE_FEEDBACK_V1_PREFERRED_CHANGED_SINCE_VERSION 1
+/**
+ * @ingroup iface_wp_color_management_surface_feedback_v1
+ */
+#define WP_COLOR_MANAGEMENT_SURFACE_FEEDBACK_V1_PREFERRED_CHANGED2_SINCE_VERSION 2
 
 /**
  * @ingroup iface_wp_color_management_surface_feedback_v1
@@ -1863,14 +1997,16 @@ wp_image_description_creator_params_v1_destroy(struct wp_image_description_creat
  * complete, the protocol error incomplete_set is raised. For the
  * definition of a complete set, see the description of this interface.
  *
- * The protocol error invalid_luminance is raised if any of the following
- * requirements is not met:
+ * When both max_cll and max_fall are set, max_fall must be less or equal
+ * to max_cll otherwise the invalid_luminance protocol error is raised.
+ *
+ * In version 1, these following conditions also result in the
+ * invalid_luminance protocol error. Version 2 and later do not have this
+ * requirement.
  * - When max_cll is set, it must be greater than min L and less or equal
  * to max L of the mastering luminance range.
  * - When max_fall is set, it must be greater than min L and less or equal
  * to max L of the mastering luminance range.
- * - When both max_cll and max_fall are set, max_fall must be less or equal
- * to max_cll.
  *
  * If the particular combination of the parameter set is not supported
  * by the compositor, the resulting image description object shall
@@ -1903,7 +2039,7 @@ wp_image_description_creator_params_v1_create(struct wp_image_description_creato
  * functions.
  *
  * When the resulting image description is attached to an image, the
- * content should be encoded and decoded according to the industry standard
+ * content should be decoded according to the industry standard
  * practices for the transfer characteristic.
  *
  * Only names advertised with wp_color_manager_v1 event supported_tf_named
@@ -1927,9 +2063,6 @@ wp_image_description_creator_params_v1_set_tf_named(struct wp_image_description_
  * positive half of the curve through the origin. The valid domain and
  * range of the curve are all finite real numbers. This curve represents
  * the conversion from electrical to optical color channel values.
- *
- * When the resulting image description is attached to an image, the
- * content should be encoded with the inverse of the power curve.
  *
  * The curve exponent shall be multiplied by 10000 to get the argument eexp
  * value to carry the precision of 4 decimals.
@@ -2000,8 +2133,8 @@ wp_image_description_creator_params_v1_set_primaries(struct wp_image_description
  * @ingroup iface_wp_image_description_creator_params_v1
  *
  * Sets the primary color volume luminance range and the reference white
- * luminance level. These values include the minimum display emission
- * and ambient flare luminances, assumed to be optically additive and have
+ * luminance level. These values include the minimum display emission, but
+ * not external flare. The minimum display emission is assumed to have
  * the chromaticity of the primary color volume white point.
  *
  * The default luminances from
@@ -2257,7 +2390,26 @@ struct wp_image_description_v1_listener {
 		       uint32_t cause,
 		       const char *msg);
 	/**
-	 * indication that the object is ready to be used
+	 * the object is ready to be used (32-bit)
+	 *
+	 * Starting from interface version 2, the 'ready2' event is sent
+	 * instead of this event.
+	 *
+	 * For the definition of this event, see the 'ready2' event. The
+	 * difference to this event is as follows.
+	 *
+	 * The id number is valid only as long as the protocol object is
+	 * alive. If all protocol objects referring to the same image
+	 * description record are destroyed, the id number may be recycled
+	 * for a different image description record.
+	 * @param identity the 32-bit image description id number
+	 * @deprecated Deprecated since version 2
+	 */
+	void (*ready)(void *data,
+		      struct wp_image_description_v1 *wp_image_description_v1,
+		      uint32_t identity);
+	/**
+	 * the object is ready to be used
 	 *
 	 * Once this event has been sent, the wp_image_description_v1
 	 * object is deemed "ready". Ready objects can be used to send
@@ -2273,25 +2425,25 @@ struct wp_image_description_v1_listener {
 	 * number simultaneously. The id number does not change during the
 	 * lifetime of the image description record.
 	 *
-	 * The id number is valid only as long as the protocol object is
-	 * alive. If all protocol objects referring to the same image
-	 * description record are destroyed, the id number may be recycled
-	 * for a different image description record.
-	 *
 	 * Image description id number is not a protocol object id. Zero is
 	 * reserved as an invalid id number. It shall not be possible for a
 	 * client to refer to an image description by its id number in
 	 * protocol. The id numbers might not be portable between Wayland
 	 * connections. A compositor shall not send an invalid id number.
 	 *
+	 * Compositors must not recycle image description id numbers.
+	 *
 	 * This identity allows clients to de-duplicate image description
 	 * records and avoid get_information request if they already have
 	 * the image description information.
-	 * @param identity image description id number
+	 * @param identity_hi high 32 bits of the 64-bit image description id number
+	 * @param identity_lo low 32 bits of the 64-bit image description id number
+	 * @since 2
 	 */
-	void (*ready)(void *data,
-		      struct wp_image_description_v1 *wp_image_description_v1,
-		      uint32_t identity);
+	void (*ready2)(void *data,
+		       struct wp_image_description_v1 *wp_image_description_v1,
+		       uint32_t identity_hi,
+		       uint32_t identity_lo);
 };
 
 /**
@@ -2316,6 +2468,10 @@ wp_image_description_v1_add_listener(struct wp_image_description_v1 *wp_image_de
  * @ingroup iface_wp_image_description_v1
  */
 #define WP_IMAGE_DESCRIPTION_V1_READY_SINCE_VERSION 1
+/**
+ * @ingroup iface_wp_image_description_v1
+ */
+#define WP_IMAGE_DESCRIPTION_V1_READY2_SINCE_VERSION 2
 
 /**
  * @ingroup iface_wp_image_description_v1
@@ -2665,6 +2821,47 @@ static inline void
 wp_image_description_info_v1_destroy(struct wp_image_description_info_v1 *wp_image_description_info_v1)
 {
 	wl_proxy_destroy((struct wl_proxy *) wp_image_description_info_v1);
+}
+
+#define WP_IMAGE_DESCRIPTION_REFERENCE_V1_DESTROY 0
+
+
+/**
+ * @ingroup iface_wp_image_description_reference_v1
+ */
+#define WP_IMAGE_DESCRIPTION_REFERENCE_V1_DESTROY_SINCE_VERSION 1
+
+/** @ingroup iface_wp_image_description_reference_v1 */
+static inline void
+wp_image_description_reference_v1_set_user_data(struct wp_image_description_reference_v1 *wp_image_description_reference_v1, void *user_data)
+{
+	wl_proxy_set_user_data((struct wl_proxy *) wp_image_description_reference_v1, user_data);
+}
+
+/** @ingroup iface_wp_image_description_reference_v1 */
+static inline void *
+wp_image_description_reference_v1_get_user_data(struct wp_image_description_reference_v1 *wp_image_description_reference_v1)
+{
+	return wl_proxy_get_user_data((struct wl_proxy *) wp_image_description_reference_v1);
+}
+
+static inline uint32_t
+wp_image_description_reference_v1_get_version(struct wp_image_description_reference_v1 *wp_image_description_reference_v1)
+{
+	return wl_proxy_get_version((struct wl_proxy *) wp_image_description_reference_v1);
+}
+
+/**
+ * @ingroup iface_wp_image_description_reference_v1
+ *
+ * Destroy this object. This has no effect on the referenced image
+ * description.
+ */
+static inline void
+wp_image_description_reference_v1_destroy(struct wp_image_description_reference_v1 *wp_image_description_reference_v1)
+{
+	wl_proxy_marshal_flags((struct wl_proxy *) wp_image_description_reference_v1,
+			 WP_IMAGE_DESCRIPTION_REFERENCE_V1_DESTROY, NULL, wl_proxy_get_version((struct wl_proxy *) wp_image_description_reference_v1), WL_MARSHAL_FLAG_DESTROY);
 }
 
 #ifdef  __cplusplus

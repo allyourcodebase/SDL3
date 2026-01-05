@@ -436,6 +436,53 @@ pub fn build(
             lib.addIncludePath(b.path("deps/alsa/include"));
         }
 
+        // Provide the Fribidi headers
+        {
+            const fribidi = b.dependency("fribidi", .{});
+            const interface_version = build_zon.dependencies.fribidi.interface_version;
+            const version_string = build_zon.dependencies.fribidi.version;
+            const version = comptime std.SemanticVersion.parse(version_string) catch unreachable;
+
+            const unicode_version_string = build_zon.dependencies.fribidi.unicode_version;
+            const unicode_version = comptime std.SemanticVersion.parse(unicode_version_string) catch unreachable;
+
+            const fribidi_config_path = "fribidi-config.h";
+            const version_h = b.addConfigHeader(.{
+                .style = .{ .cmake = fribidi.path("lib/fribidi-config.h.in") },
+                .include_path = fribidi_config_path,
+            }, .{
+                .configure_input = fribidi_config_path,
+
+                .PACKAGE = "fribidi",
+                .PACKAGE_NAME = "GNU FriBidi",
+                .PACKAGE_BUGREPORT = "https://github.com/fribidi/fribidi/issues/new",
+
+                .FRIBIDI_VERSION = version_string,
+                .FRIBIDI_MAJOR_VERSION = @as(i64, version.major),
+                .FRIBIDI_MINOR_VERSION = @as(i64, version.minor),
+                .FRIBIDI_MICRO_VERSION = @as(i64, version.patch),
+                .FRIBIDI_INTERFACE_VERSION = interface_version,
+
+                .SIZEOF_INT = target.cTypeByteSize(.int),
+
+                .FRIBIDI_MSVC_BUILD_PLACEHOLDER = "",
+            });
+            _ = generated.addCopyFile(version_h.getOutput(), version_h.include_path);
+
+            const unicode_version_h = b.addConfigHeader(.{
+                .style = .blank,
+                .include_path = "fribidi-unicode-version.h",
+            }, .{
+                .FRIBIDI_UNICODE_VERSION = unicode_version_string,
+                .FRIBIDI_UNICODE_MAJOR_VERSION = @as(i64, unicode_version.major),
+                .FRIBIDI_UNICODE_MINOR_VERSION = @as(i64, unicode_version.minor),
+                .FRIBIDI_UNICODE_MICRO_VERSION = @as(i64, unicode_version.patch),
+            });
+            _ = generated.addCopyFile(unicode_version_h.getOutput(), unicode_version_h.include_path);
+
+            lib.addIncludePath(fribidi.path("lib"));
+        }
+
         // Provide upstream headers that don't require any special handling
         lib.addIncludePath(b.dependency("egl", .{}).path("api"));
         lib.addIncludePath(b.dependency("opengl", .{}).path("api"));
@@ -453,6 +500,7 @@ pub fn build(
         lib.addIncludePath(b.path("deps/wayland/protocols"));
         lib.addIncludePath(b.dependency("decor", .{}).path("src"));
         lib.addIncludePath(b.path("deps/mesa/include"));
+        lib.addIncludePath(b.dependency("thai", .{}).path("include"));
 
         // Provide vendored headers that don't require any special handling
         lib.addIncludePath(b.path("deps/xcb/include"));
@@ -482,6 +530,8 @@ pub fn build(
     // Set the platform specific build config
     const libdecor_version_string = build_zon.dependencies.decor.version;
     const libdecor_version = comptime std.SemanticVersion.parse(libdecor_version_string) catch unreachable;
+    const xkbcommon_version_string = build_zon.dependencies.xkbcommon.version;
+    const xkbcommon_version = comptime std.SemanticVersion.parse(xkbcommon_version_string) catch unreachable;
     const have_sigtimedwait: i64 = if (target.os.tag == .openbsd) 0 else 1;
     build_config_h.addValues(.{
         .HAVE_GCC_ATOMICS = 1,
@@ -623,6 +673,8 @@ pub fn build(
         .HAVE_ELF_AUX_INFO = 1,
         .HAVE_POLL = 1,
         .HAVE__EXIT = 1,
+        .HAVE_GETRESUID = 1,
+        .HAVE_GETRESGID = 1,
 
         .HAVE_DBUS_DBUS_H = 1,
         .HAVE_FCITX = 1,
@@ -636,6 +688,10 @@ pub fn build(
         .HAVE_LIBUDEV_H = 1,
         .HAVE_LIBDECOR_H = 1,
         .HAVE_LIBURING_H = 1,
+        .HAVE_FRIBIDI_H = 1,
+        .SDL_FRIBIDI_DYNAMIC = formatDynamic("libfribidi.so"),
+        .HAVE_LIBTHAI_H = 1,
+        .SDL_LIBTHAI_DYNAMIC = formatDynamic("libthai.so"),
 
         .USE_POSIX_SPAWN = 1,
 
@@ -710,12 +766,15 @@ pub fn build(
         .SDL_VIDEO_DRIVER_X11_XRANDR = 1,
         .SDL_VIDEO_DRIVER_X11_DYNAMIC_XRANDR = formatDynamic("libXrandr.so"),
         .SDL_VIDEO_DRIVER_X11_DYNAMIC_XSS = formatDynamic("libX11.so"),
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XTEST = formatDynamic("libXtst.so"),
         .SDL_VIDEO_DRIVER_X11_XCURSOR = 1,
         .SDL_VIDEO_DRIVER_X11_DYNAMIC_XCURSOR = formatDynamic("libXcursor.so"),
         .SDL_VIDEO_DRIVER_X11_HAS_XKBLOOKUPKEYSYM = 1,
         .SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS = 1,
         .SDL_VIDEO_DRIVER_X11_XDBE = 1,
         .SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_MULTITOUCH = 1,
+        .SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_SCROLLINFO = 1,
+        .SDL_VIDEO_DRIVER_X11_XINPUT2_SUPPORTS_GESTURE = 1,
         .SDL_VIDEO_DRIVER_X11_XSCRNSAVER = 1,
         .SDL_VIDEO_DRIVER_X11_XSHAPE = 1,
         .SDL_VIDEO_DRIVER_X11_XSYNC = 1,
@@ -762,6 +821,11 @@ pub fn build(
 
         // Enable ime support
         .SDL_USE_IME = 1,
+
+        // Set the xkbcommon version
+        .SDL_XKBCOMMON_VERSION_MAJOR = @as(i64, xkbcommon_version.major),
+        .SDL_XKBCOMMON_VERSION_MINOR = @as(i64, xkbcommon_version.minor),
+        .SDL_XKBCOMMON_VERSION_PATCH = @as(i64, xkbcommon_version.patch),
 
         // Set the libdecor version
         .SDL_LIBDECOR_VERSION_MAJOR = @as(i64, libdecor_version.major),

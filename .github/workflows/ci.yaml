@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        zig-version: [master]
-        os: [ubuntu-latest, windows-latest]
+        zig-version: [0.15.0]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -38,4 +38,6 @@ jobs:
 
       - name: Build for macOS
         if: runner.os == 'macOS'
-        run: zig build example -Dtarget=x86_64-macos-gnu --summary all
+        # We don't support cross compiling for macOS, so don't set a target just build
+        # the native target
+        run: zig build example --summary all
