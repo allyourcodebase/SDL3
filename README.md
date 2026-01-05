@@ -2,7 +2,7 @@
 
 # SDL3 Zig
 
-SDL3 ported to the Zig build system. Requires at least Zig `0.15.0-dev.1218+bc8e1a74c`.
+SDL3 ported to the Zig build system.
 
 Supports cross compilation and custom platform configuration.
 
