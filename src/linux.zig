@@ -528,6 +528,9 @@ pub fn build(
     }
 
     // Set the platform specific build config
+    //
+    // Dynamic library versions are from Steam Linux Runtime 3.0 Sniper unless otherwise noted:
+    // https://gitlab.steamos.cloud/steamrt/steamrt/-/tree/steamrt/sniper
     const libdecor_version_string = build_zon.dependencies.decor.version;
     const libdecor_version = comptime std.SemanticVersion.parse(libdecor_version_string) catch unreachable;
     const xkbcommon_version_string = build_zon.dependencies.xkbcommon.version;
@@ -689,24 +692,25 @@ pub fn build(
         .HAVE_LIBDECOR_H = 1,
         .HAVE_LIBURING_H = 1,
         .HAVE_FRIBIDI_H = 1,
-        .SDL_FRIBIDI_DYNAMIC = formatDynamic("libfribidi.so"),
+        .SDL_FRIBIDI_DYNAMIC = formatDynamic("libfribidi.so.0"),
         .HAVE_LIBTHAI_H = 1,
-        .SDL_LIBTHAI_DYNAMIC = formatDynamic("libthai.so"),
+        .SDL_LIBTHAI_DYNAMIC = formatDynamic("libthai.so.0"),
 
         .USE_POSIX_SPAWN = 1,
 
         // Enable various audio drivers
         .SDL_AUDIO_DRIVER_ALSA = 1,
-        .SDL_AUDIO_DRIVER_ALSA_DYNAMIC = formatDynamic("libasound.so"),
+        .SDL_AUDIO_DRIVER_ALSA_DYNAMIC = formatDynamic("libasound.so.2"),
         .SDL_AUDIO_DRIVER_JACK = 1,
-        .SDL_AUDIO_DRIVER_JACK_DYNAMIC = formatDynamic("libjack.so"),
+        .SDL_AUDIO_DRIVER_JACK_DYNAMIC = formatDynamic("libjack.so.0"),
         .SDL_AUDIO_DRIVER_OSS = 1,
         .SDL_AUDIO_DRIVER_PIPEWIRE = 1,
-        .SDL_AUDIO_DRIVER_PIPEWIRE_DYNAMIC = formatDynamic("libpipewire-0.3.so"),
+        .SDL_AUDIO_DRIVER_PIPEWIRE_DYNAMIC = formatDynamic("libpipewire-0.3.so.0"),
         .SDL_AUDIO_DRIVER_PULSEAUDIO = 1,
-        .SDL_AUDIO_DRIVER_PULSEAUDIO_DYNAMIC = formatDynamic("libpulse.so"),
+        .SDL_AUDIO_DRIVER_PULSEAUDIO_DYNAMIC = formatDynamic("libpulse.so.0"),
         .SDL_AUDIO_DRIVER_SNDIO = 1,
-        .SDL_AUDIO_DRIVER_SNDIO_DYNAMIC = formatDynamic("libsndio.so"),
+        // Note that `libsndio` is not part of the SLR.
+        .SDL_AUDIO_DRIVER_SNDIO_DYNAMIC = formatDynamic("libsndio.so.7"),
         .SDL_AUDIO_DRIVER_DUMMY = 1,
 
         // Enable various input drivers
@@ -718,8 +722,8 @@ pub fn build(
         .SDL_JOYSTICK_VIRTUAL = 1,
         .SDL_HAPTIC_LINUX = 1,
 
-        .SDL_LIBUSB_DYNAMIC = formatDynamic("libusb-1.0.so"),
-        .SDL_UDEV_DYNAMIC = formatDynamic("libudev.so"),
+        .SDL_LIBUSB_DYNAMIC = formatDynamic("libusb-1.0.so.0"),
+        .SDL_UDEV_DYNAMIC = formatDynamic("libudev.so.1"),
 
         // Enable various process implementations
         .SDL_PROCESS_POSIX = 1,
@@ -746,29 +750,29 @@ pub fn build(
         // If you were to copy that in, you'd make your application less portable without actually
         // getting any guarantees about correctness.
         .SDL_VIDEO_DRIVER_KMSDRM = 1,
-        .SDL_VIDEO_DRIVER_KMSDRM_DYNAMIC = formatDynamic("libdrm.so"),
-        .SDL_VIDEO_DRIVER_KMSDRM_DYNAMIC_GBM = formatDynamic("libgbm.so"),
+        .SDL_VIDEO_DRIVER_KMSDRM_DYNAMIC = formatDynamic("libdrm.so.2"),
+        .SDL_VIDEO_DRIVER_KMSDRM_DYNAMIC_GBM = formatDynamic("libgbm.so.1"),
         .SDL_VIDEO_DRIVER_ROCKCHIP = 1,
         .SDL_VIDEO_DRIVER_OPENVR = 0, // https://github.com/libsdl-org/SDL/issues/11329
         .SDL_VIDEO_DRIVER_WAYLAND = 1,
-        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC = formatDynamic("libwayland-client.so"),
-        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC_CURSOR = formatDynamic("libwayland-cursor.so"),
-        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC_EGL = formatDynamic("libwayland-egl.so"),
-        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC_LIBDECOR = formatDynamic("libdecor-0.so"),
-        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC_XKBCOMMON = formatDynamic("libxkbcommon.so"),
+        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC = formatDynamic("libwayland-client.so.0"),
+        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC_CURSOR = formatDynamic("libwayland-cursor.so.0"),
+        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC_EGL = formatDynamic("libwayland-egl.so.1"),
+        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC_LIBDECOR = formatDynamic("libdecor-0.so.0"),
+        .SDL_VIDEO_DRIVER_WAYLAND_DYNAMIC_XKBCOMMON = formatDynamic("libxkbcommon.so.0"),
         .SDL_VIDEO_DRIVER_X11 = 1,
-        .SDL_VIDEO_DRIVER_X11_DYNAMIC = formatDynamic("libX11.so"),
-        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XEXT = formatDynamic("libXext.so"),
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC = formatDynamic("libX11.so.6"),
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XEXT = formatDynamic("libXext.so.6"),
         .SDL_VIDEO_DRIVER_X11_XFIXES = 1,
-        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XFIXES = formatDynamic("libXfixes.so"),
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XFIXES = formatDynamic("libXfixes.so.3"),
         .SDL_VIDEO_DRIVER_X11_XINPUT2 = 1,
-        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XINPUT2 = formatDynamic("libXi.so"),
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XINPUT2 = formatDynamic("libXi.so.6"),
         .SDL_VIDEO_DRIVER_X11_XRANDR = 1,
-        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XRANDR = formatDynamic("libXrandr.so"),
-        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XSS = formatDynamic("libX11.so"),
-        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XTEST = formatDynamic("libXtst.so"),
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XRANDR = formatDynamic("libXrandr.so.2"),
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XSS = formatDynamic("libXss.so.1"),
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XTEST = formatDynamic("libXtst.so.6"),
         .SDL_VIDEO_DRIVER_X11_XCURSOR = 1,
-        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XCURSOR = formatDynamic("libXcursor.so"),
+        .SDL_VIDEO_DRIVER_X11_DYNAMIC_XCURSOR = formatDynamic("libXcursor.so.1"),
         .SDL_VIDEO_DRIVER_X11_HAS_XKBLOOKUPKEYSYM = 1,
         .SDL_VIDEO_DRIVER_X11_SUPPORTS_GENERIC_EVENTS = 1,
         .SDL_VIDEO_DRIVER_X11_XDBE = 1,
@@ -813,7 +817,7 @@ pub fn build(
         // Enable camera subsystem
         .SDL_CAMERA_DRIVER_V4L2 = 1,
         .SDL_CAMERA_DRIVER_PIPEWIRE = 1,
-        .SDL_CAMERA_DRIVER_PIPEWIRE_DYNAMIC = formatDynamic("libpipewire-0.3.so"),
+        .SDL_CAMERA_DRIVER_PIPEWIRE_DYNAMIC = formatDynamic("libpipewire-0.3.so.0"),
         .SDL_CAMERA_DRIVER_DUMMY = 1,
 
         // Whether SDL_DYNAMIC_API needs dlopen
