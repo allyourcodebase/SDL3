@@ -67,11 +67,11 @@ pub fn build(b: *std.Build) !void {
     b.installArtifact(lib);
 
     // Set the include path
-    lib.addIncludePath(upstream.path("include"));
-    lib.addIncludePath(upstream.path("src"));
+    lib.root_module.addIncludePath(upstream.path("include"));
+    lib.root_module.addIncludePath(upstream.path("src"));
 
     // Compile the generic sources
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = &sources.generic,
         .root = upstream.path("src"),
         .flags = flags,
@@ -102,7 +102,7 @@ pub fn build(b: *std.Build) !void {
                 .ReleaseSmall, .ReleaseFast => @as(i64, 1),
             },
         });
-        lib.addConfigHeader(build_config_h);
+        lib.root_module.addConfigHeader(build_config_h);
 
         // Configure the build for the target platform
         switch (target.result.os.tag) {
@@ -125,7 +125,7 @@ pub fn build(b: *std.Build) !void {
             .optimize = optimize,
         }),
     });
-    example.linkLibrary(lib);
+    example.root_module.linkLibrary(lib);
 
     const build_example_step = b.step("example", "Build the example app");
     build_example_step.dependOn(&example.step);
