@@ -16,33 +16,33 @@ pub fn build(
     const upstream = b.dependency("sdl", .{});
 
     // Add the platform specific dependency include paths
-    lib.addIncludePath(b.dependency("egl", .{}).path("api"));
-    lib.addIncludePath(b.dependency("opengl", .{}).path("api"));
+    lib.root_module.addIncludePath(b.dependency("egl", .{}).path("api"));
+    lib.root_module.addIncludePath(b.dependency("opengl", .{}).path("api"));
 
     // Link with the platform specific system frameworks
-    lib.linkFramework("Cocoa");
-    lib.linkFramework("IOKit");
-    lib.linkFramework("ForceFeedback");
-    lib.linkFramework("CoreVideo");
-    lib.linkFramework("CoreAudio");
-    lib.linkFramework("CoreHaptics");
-    lib.linkFramework("CoreFoundation");
-    lib.linkFramework("CoreMedia");
-    lib.linkFramework("CoreGraphics");
-    lib.linkFramework("Carbon");
-    lib.linkFramework("Metal");
-    lib.linkFramework("QuartzCore");
-    lib.linkFramework("AudioToolbox");
-    lib.linkFramework("AVFoundation");
-    lib.linkFramework("Foundation");
-    lib.linkFramework("GameController");
-    lib.linkFramework("CoreBluetooth");
-    lib.linkFramework("UniformTypeIdentifiers");
-    lib.linkSystemLibrary("iconv");
+    lib.root_module.linkFramework("Cocoa", .{});
+    lib.root_module.linkFramework("IOKit", .{});
+    lib.root_module.linkFramework("ForceFeedback", .{});
+    lib.root_module.linkFramework("CoreVideo", .{});
+    lib.root_module.linkFramework("CoreAudio", .{});
+    lib.root_module.linkFramework("CoreHaptics", .{});
+    lib.root_module.linkFramework("CoreFoundation", .{});
+    lib.root_module.linkFramework("CoreMedia", .{});
+    lib.root_module.linkFramework("CoreGraphics", .{});
+    lib.root_module.linkFramework("Carbon", .{});
+    lib.root_module.linkFramework("Metal", .{});
+    lib.root_module.linkFramework("QuartzCore", .{});
+    lib.root_module.linkFramework("AudioToolbox", .{});
+    lib.root_module.linkFramework("AVFoundation", .{});
+    lib.root_module.linkFramework("Foundation", .{});
+    lib.root_module.linkFramework("GameController", .{});
+    lib.root_module.linkFramework("CoreBluetooth", .{});
+    lib.root_module.linkFramework("UniformTypeIdentifiers", .{});
+    lib.root_module.linkSystemLibrary("iconv", .{});
 
     // Add the platform specific sources
     const objc_flags = root.flags.* ++ [_][]const u8{"-fobjc-arc"};
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = &(sources.cocoa ++ sources.darwin ++ sources.mac ++ sources.unix ++ sources.pthread),
         .root = upstream.path("src"),
         .flags = &objc_flags,
