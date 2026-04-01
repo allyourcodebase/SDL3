@@ -8,7 +8,7 @@ Supports cross compilation and custom platform configuration.
 
 # Zig Version
 
-This repo currently targets Zig 0.15, but support for Zig 0.16 is in #13 and will be merged into main when Zig 0.16 is released.
+This repo currently targets Zig 0.15, but support for Zig 0.16 is in [#13](https://github.com/allyourcodebase/SDL3/pull/13) and will be merged into main when Zig 0.16 is released.
 
 # Setup
 
