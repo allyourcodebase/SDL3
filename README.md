@@ -6,6 +6,10 @@ SDL3 ported to the Zig build system.
 
 Supports cross compilation and custom platform configuration.
 
+# Zig Version
+
+This repo currently targets Zig 0.15, but support for Zig 0.16 is in #13 and will be merged into main when Zig 0.16 is released.
+
 # Setup
 
 You can add SDL3 to your project like this by updating `build.zig.zon` from the command line:
