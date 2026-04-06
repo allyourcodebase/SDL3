@@ -261,5 +261,6 @@ pub fn build(
         .SDL_XKBCOMMON_VERSION_MAJOR = "",
         .SDL_XKBCOMMON_VERSION_MINOR = "",
         .SDL_XKBCOMMON_VERSION_PATCH = "",
+        .SDL_EMSCRIPTEN_PERSISTENT_PATH_STRING = "",
     });
 }
