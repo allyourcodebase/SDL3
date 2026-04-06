@@ -835,6 +835,9 @@ pub fn build(
         .SDL_LIBDECOR_VERSION_MAJOR = @as(i64, libdecor_version.major),
         .SDL_LIBDECOR_VERSION_MINOR = @as(i64, libdecor_version.minor),
         .SDL_LIBDECOR_VERSION_PATCH = @as(i64, libdecor_version.patch),
+
+        // Unused
+        .SDL_EMSCRIPTEN_PERSISTENT_PATH_STRING = "",
     });
 }
 
