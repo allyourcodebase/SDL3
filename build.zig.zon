@@ -1,7 +1,7 @@
 .{
     .name = .sdl,
     .fingerprint = 0xec638ccbd103848b,
-    .version = "0.0.0",
+    .version = "1.0.0",
     .minimum_zig_version = "0.15.0",
     .dependencies = .{
         .sdl = .{
