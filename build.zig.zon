@@ -1,8 +1,8 @@
 .{
     .name = .sdl,
     .fingerprint = 0xec638ccbd103848b,
-    .version = "1.0.0+3.4.4",
-    .minimum_zig_version = "0.15.0",
+    .version = "1.0.1+3.4.4",
+    .minimum_zig_version = "0.16.0",
     .dependencies = .{
         .sdl = .{
             .url = "https://github.com/libsdl-org/SDL/archive/refs/tags/release-3.4.4.tar.gz",

@@ -16,32 +16,32 @@ pub fn build(
     const upstream = b.dependency("sdl", .{});
 
     // Add the platform specific dependency include paths
-    lib.addIncludePath(b.dependency("egl", .{}).path("api"));
-    lib.addIncludePath(b.dependency("opengl", .{}).path("api"));
+    lib.root_module.addIncludePath(b.dependency("egl", .{}).path("api"));
+    lib.root_module.addIncludePath(b.dependency("opengl", .{}).path("api"));
 
     // Link with the platform specific system libraries
-    lib.linkSystemLibrary("advapi32");
-    lib.linkSystemLibrary("gdi32");
-    lib.linkSystemLibrary("imm32");
-    lib.linkSystemLibrary("kernel32");
-    lib.linkSystemLibrary("ole32");
-    lib.linkSystemLibrary("oleaut32");
-    lib.linkSystemLibrary("setupapi");
-    lib.linkSystemLibrary("shell32");
-    lib.linkSystemLibrary("user32");
-    lib.linkSystemLibrary("uuid");
-    lib.linkSystemLibrary("version");
-    lib.linkSystemLibrary("winmm");
+    lib.root_module.linkSystemLibrary("advapi32", .{});
+    lib.root_module.linkSystemLibrary("gdi32", .{});
+    lib.root_module.linkSystemLibrary("imm32", .{});
+    lib.root_module.linkSystemLibrary("kernel32", .{});
+    lib.root_module.linkSystemLibrary("ole32", .{});
+    lib.root_module.linkSystemLibrary("oleaut32", .{});
+    lib.root_module.linkSystemLibrary("setupapi", .{});
+    lib.root_module.linkSystemLibrary("shell32", .{});
+    lib.root_module.linkSystemLibrary("user32", .{});
+    lib.root_module.linkSystemLibrary("uuid", .{});
+    lib.root_module.linkSystemLibrary("version", .{});
+    lib.root_module.linkSystemLibrary("winmm", .{});
 
     // Add the platform specific sources
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = &sources.windows,
         .root = upstream.path("src"),
         .flags = root.flags,
     });
 
     if (lib.linkage == .dynamic) {
-        lib.addWin32ResourceFile(.{ .file = upstream.path("src/core/windows/version.rc") });
+        lib.root_module.addWin32ResourceFile(.{ .file = upstream.path("src/core/windows/version.rc") });
     }
 
     // Set the platform specific build config

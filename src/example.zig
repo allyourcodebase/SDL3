@@ -3,7 +3,12 @@ const c = @cImport({
     @cInclude("SDL3/SDL.h");
 });
 
+const Io = std.Io;
+
 pub fn main() void {
+    var threaded_io: Io.Threaded = .init_single_threaded;
+    const io = threaded_io.io();
+
     // Initialize SDL
     if (!c.SDL_Init(c.SDL_INIT_VIDEO)) {
         std.debug.panic("{s}", .{c.SDL_GetError()});
@@ -34,7 +39,7 @@ pub fn main() void {
         var event: c.SDL_Event = undefined;
         while (c.SDL_PollEvent(&event)) {
             if (event.type == c.SDL_EVENT_QUIT) {
-                std.process.cleanExit();
+                std.process.cleanExit(io);
                 return;
             }
         }

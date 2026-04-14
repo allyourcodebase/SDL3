@@ -17,12 +17,12 @@ pub fn build(
     {
         // Set up the config include write file step
         const generated = b.addWriteFiles();
-        lib.addIncludePath(generated.getDirectory());
+        lib.root_module.addIncludePath(generated.getDirectory());
 
         // Provide the D-Bus headers
         {
             const dbus = b.dependency("dbus", .{});
-            lib.addIncludePath(dbus.path("."));
+            lib.root_module.addIncludePath(dbus.path("."));
 
             const version_string = build_zon.dependencies.dbus.version;
             const version = comptime std.SemanticVersion.parse(version_string) catch unreachable;
@@ -44,7 +44,10 @@ pub fn build(
                     .DBUS_VERSION = version_string,
                 },
             );
-            _ = generated.addCopyFile(dbus_config.getOutput(), dbus_config.include_path);
+            _ = generated.addCopyFile(
+                dbus_config.getOutputFile(),
+                dbus_config.include_path,
+            );
 
             if (target.cTypeByteSize(.int) == 2) {
                 dbus_config.addValues(.{
@@ -103,21 +106,21 @@ pub fn build(
         // Provide the IBus headers
         {
             // The headers are here
-            lib.addIncludePath(b.dependency("ibus", .{}).path("src"));
+            lib.root_module.addIncludePath(b.dependency("ibus", .{}).path("src"));
 
             // They depend on the GLib headers, which require some configuration
-            lib.addIncludePath(b.path("deps/glib/upstream/include"));
-            lib.addIncludePath(b.path("deps/glib/upstream/include/glib"));
-            lib.addIncludePath(b.path("deps/glib/upstream/include/gmodule"));
-            lib.addIncludePath(b.path("deps/glib/cached/include"));
-            lib.addIncludePath(b.path("deps/glib/cached/include/glib"));
-            lib.addIncludePath(b.path("deps/glib/cached/include/gmodule"));
+            lib.root_module.addIncludePath(b.path("deps/glib/upstream/include"));
+            lib.root_module.addIncludePath(b.path("deps/glib/upstream/include/glib"));
+            lib.root_module.addIncludePath(b.path("deps/glib/upstream/include/gmodule"));
+            lib.root_module.addIncludePath(b.path("deps/glib/cached/include"));
+            lib.root_module.addIncludePath(b.path("deps/glib/cached/include/glib"));
+            lib.root_module.addIncludePath(b.path("deps/glib/cached/include/gmodule"));
 
             const glib_config = b.addConfigHeader(.{
                 .style = .{ .cmake = b.path("deps/glib/glibconfig.h.in") },
                 .include_path = "glibconfig.h",
             }, .{});
-            _ = generated.addCopyFile(glib_config.getOutput(), glib_config.include_path);
+            _ = generated.addCopyFile(glib_config.getOutputFile(), glib_config.include_path);
 
             // Configure glib
             {
@@ -279,9 +282,9 @@ pub fn build(
             }, .{
                 .GLIB_VERSIONS = @embedFile("../deps/glib/glib_versions.h"),
             });
-            _ = generated.addCopyFile(version_h.getOutput(), version_h.include_path);
+            _ = generated.addCopyFile(version_h.getOutputFile(), version_h.include_path);
 
-            lib.addIncludePath(b.path("deps/glib/include"));
+            lib.root_module.addIncludePath(b.path("deps/glib/include"));
         }
 
         // Provide the X11 headers
@@ -289,7 +292,7 @@ pub fn build(
             {
                 const x11 = b.dependency("x11", .{});
 
-                lib.addIncludePath(x11.path("include"));
+                lib.root_module.addIncludePath(x11.path("include"));
 
                 const config = b.addConfigHeader(.{
                     .style = .{ .autoconf_undef = x11.path("include/X11/XlibConf.h.in") },
@@ -298,7 +301,7 @@ pub fn build(
                     .XTHREADS = 1,
                     .XUSE_MTSAFE_API = 1,
                 });
-                _ = generated.addCopyFile(config.getOutput(), config.include_path);
+                _ = generated.addCopyFile(config.getOutputFile(), config.include_path);
             }
 
             // Provide the Xcursor headers
@@ -314,13 +317,13 @@ pub fn build(
                     .XCURSOR_LIB_MINOR = @as(i64, version.minor),
                     .XCURSOR_LIB_REVISION = @as(i64, version.patch),
                 });
-                _ = generated.addCopyFile(config.getOutput(), config.include_path);
+                _ = generated.addCopyFile(config.getOutputFile(), config.include_path);
             }
         }
 
         // Provide the liburing headers
         {
-            lib.addIncludePath(b.path("deps/liburing/include"));
+            lib.root_module.addIncludePath(b.path("deps/liburing/include"));
             const compat_h = b.addConfigHeader(.{
                 .style = .{ .autoconf_undef = b.path("deps/liburing/compat.h.in") },
                 .include_path = "liburing/compat.h",
@@ -334,7 +337,7 @@ pub fn build(
                 .HAS_FUTEX_WAITV = 1,
                 .HAS_IDTYPE_T = 1,
             });
-            _ = generated.addCopyFile(compat_h.getOutput(), compat_h.include_path);
+            _ = generated.addCopyFile(compat_h.getOutputFile(), compat_h.include_path);
 
             const version_string = build_zon.dependencies.decor.version;
             const version = comptime std.SemanticVersion.parse(version_string) catch unreachable;
@@ -345,14 +348,14 @@ pub fn build(
                 .IO_URING_VERSION_MAJOR = @as(i64, version.major),
                 .IO_URING_VERSION_MINOR = @as(i64, version.minor),
             });
-            _ = generated.addCopyFile(version_h.getOutput(), version_h.include_path);
+            _ = generated.addCopyFile(version_h.getOutputFile(), version_h.include_path);
         }
 
         // Provide the pipewire headers
         {
             const pipewire = b.dependency("pipewire", .{});
-            lib.addIncludePath(pipewire.path("spa/include"));
-            lib.addIncludePath(pipewire.path("src"));
+            lib.root_module.addIncludePath(pipewire.path("spa/include"));
+            lib.root_module.addIncludePath(pipewire.path("src"));
             const version_string = build_zon.dependencies.pipewire.version;
             const api_version_string = build_zon.dependencies.pipewire.api_version;
             const version = comptime std.SemanticVersion.parse(version_string) catch unreachable;
@@ -365,7 +368,7 @@ pub fn build(
                 .PIPEWIRE_VERSION_MICRO = @as(i64, version.patch),
                 .PIPEWIRE_API_VERSION = api_version_string,
             });
-            _ = generated.addCopyFile(config_h.getOutput(), config_h.include_path);
+            _ = generated.addCopyFile(config_h.getOutputFile(), config_h.include_path);
         }
 
         // Provide the pulseaudio headers
@@ -377,7 +380,7 @@ pub fn build(
                 else => "pulseaudio",
             };
             if (b.lazyDependency(pulseaudio_name, .{})) |pulseaudio| {
-                lib.addIncludePath(pulseaudio.path("src"));
+                lib.root_module.addIncludePath(pulseaudio.path("src"));
                 const version_string = build_zon.dependencies.pulseaudio.version;
                 const version = comptime std.SemanticVersion.parse(version_string) catch unreachable;
                 const api_version_string = build_zon.dependencies.pulseaudio.api_version;
@@ -393,16 +396,16 @@ pub fn build(
                     .PA_API_VERSION = api_version,
                     .PA_PROTOCOL_VERSION = protocol_version,
                 });
-                _ = generated.addCopyFile(version_h.getOutput(), version_h.include_path);
+                _ = generated.addCopyFile(version_h.getOutputFile(), version_h.include_path);
             }
         }
 
         // Provide the Wayland headers
         {
             const wayland = b.dependency("wayland", .{});
-            lib.addIncludePath(wayland.path("src"));
-            lib.addIncludePath(wayland.path("cursor"));
-            lib.addIncludePath(wayland.path("egl"));
+            lib.root_module.addIncludePath(wayland.path("src"));
+            lib.root_module.addIncludePath(wayland.path("cursor"));
+            lib.root_module.addIncludePath(wayland.path("egl"));
 
             // Provide the config header
             const version_string = build_zon.dependencies.wayland.version;
@@ -416,14 +419,14 @@ pub fn build(
                 .WAYLAND_VERSION_MICRO = @as(i64, version.patch),
                 .WAYLAND_VERSION = version_string,
             });
-            _ = generated.addCopyFile(version_h.getOutput(), version_h.include_path);
+            _ = generated.addCopyFile(version_h.getOutputFile(), version_h.include_path);
         }
 
         // Provide the Direct Rendering Manager headers
         {
-            lib.addIncludePath(b.path("deps/drm/include"));
-            lib.addIncludePath(b.path("deps/drm/include/drm"));
-            lib.addIncludePath(b.path("deps/mesa/include/gbm"));
+            lib.root_module.addIncludePath(b.path("deps/drm/include"));
+            lib.root_module.addIncludePath(b.path("deps/drm/include/drm"));
+            lib.root_module.addIncludePath(b.path("deps/mesa/include/gbm"));
         }
 
         // Provide the Alsa headers
@@ -432,8 +435,8 @@ pub fn build(
             _ = generated.addCopyDirectory(alsa.path("include"), "alsa", .{
                 .include_extensions = &.{".h"},
             });
-            lib.addIncludePath(generated.getDirectory());
-            lib.addIncludePath(b.path("deps/alsa/include"));
+            lib.root_module.addIncludePath(generated.getDirectory());
+            lib.root_module.addIncludePath(b.path("deps/alsa/include"));
         }
 
         // Provide the Fribidi headers
@@ -467,7 +470,7 @@ pub fn build(
 
                 .FRIBIDI_MSVC_BUILD_PLACEHOLDER = "",
             });
-            _ = generated.addCopyFile(version_h.getOutput(), version_h.include_path);
+            _ = generated.addCopyFile(version_h.getOutputFile(), version_h.include_path);
 
             const unicode_version_h = b.addConfigHeader(.{
                 .style = .blank,
@@ -478,37 +481,37 @@ pub fn build(
                 .FRIBIDI_UNICODE_MINOR_VERSION = @as(i64, unicode_version.minor),
                 .FRIBIDI_UNICODE_MICRO_VERSION = @as(i64, unicode_version.patch),
             });
-            _ = generated.addCopyFile(unicode_version_h.getOutput(), unicode_version_h.include_path);
+            _ = generated.addCopyFile(unicode_version_h.getOutputFile(), unicode_version_h.include_path);
 
-            lib.addIncludePath(fribidi.path("lib"));
+            lib.root_module.addIncludePath(fribidi.path("lib"));
         }
 
         // Provide upstream headers that don't require any special handling
-        lib.addIncludePath(b.dependency("egl", .{}).path("api"));
-        lib.addIncludePath(b.dependency("opengl", .{}).path("api"));
-        lib.addIncludePath(b.dependency("xkbcommon", .{}).path("include"));
-        lib.addIncludePath(b.dependency("xorgproto", .{}).path("include"));
-        lib.addIncludePath(b.dependency("xext", .{}).path("include"));
-        lib.addIncludePath(b.dependency("usb", .{}).path("libusb"));
-        lib.addIncludePath(b.dependency("xi", .{}).path("include"));
-        lib.addIncludePath(b.dependency("xfixes", .{}).path("include"));
-        lib.addIncludePath(b.dependency("xrandr", .{}).path("include"));
-        lib.addIncludePath(b.dependency("xrender", .{}).path("include"));
-        lib.addIncludePath(b.dependency("xscrnsaver", .{}).path("include"));
-        lib.addIncludePath(b.dependency("jack", .{}).path("common"));
-        lib.addIncludePath(b.dependency("sndio", .{}).path("libsndio"));
-        lib.addIncludePath(b.path("deps/wayland/protocols"));
-        lib.addIncludePath(b.dependency("decor", .{}).path("src"));
-        lib.addIncludePath(b.path("deps/mesa/include"));
-        lib.addIncludePath(b.dependency("thai", .{}).path("include"));
+        lib.root_module.addIncludePath(b.dependency("egl", .{}).path("api"));
+        lib.root_module.addIncludePath(b.dependency("opengl", .{}).path("api"));
+        lib.root_module.addIncludePath(b.dependency("xkbcommon", .{}).path("include"));
+        lib.root_module.addIncludePath(b.dependency("xorgproto", .{}).path("include"));
+        lib.root_module.addIncludePath(b.dependency("xext", .{}).path("include"));
+        lib.root_module.addIncludePath(b.dependency("usb", .{}).path("libusb"));
+        lib.root_module.addIncludePath(b.dependency("xi", .{}).path("include"));
+        lib.root_module.addIncludePath(b.dependency("xfixes", .{}).path("include"));
+        lib.root_module.addIncludePath(b.dependency("xrandr", .{}).path("include"));
+        lib.root_module.addIncludePath(b.dependency("xrender", .{}).path("include"));
+        lib.root_module.addIncludePath(b.dependency("xscrnsaver", .{}).path("include"));
+        lib.root_module.addIncludePath(b.dependency("jack", .{}).path("common"));
+        lib.root_module.addIncludePath(b.dependency("sndio", .{}).path("libsndio"));
+        lib.root_module.addIncludePath(b.path("deps/wayland/protocols"));
+        lib.root_module.addIncludePath(b.dependency("decor", .{}).path("src"));
+        lib.root_module.addIncludePath(b.path("deps/mesa/include"));
+        lib.root_module.addIncludePath(b.dependency("thai", .{}).path("include"));
 
         // Provide vendored headers that don't require any special handling
-        lib.addIncludePath(b.path("deps/xcb/include"));
-        lib.addIncludePath(b.path("deps/udev/include"));
+        lib.root_module.addIncludePath(b.path("deps/xcb/include"));
+        lib.root_module.addIncludePath(b.path("deps/udev/include"));
     }
 
     // Add the platform specific SDL sources
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = &(sources.unix ++ sources.linux ++ sources.x11 ++ sources.pthread),
         .root = upstream.path("src"),
         .flags = root.flags,
@@ -516,7 +519,7 @@ pub fn build(
 
     // Provide the Wayland protocols
     for (@as([]const []const u8, &sources.wayland_protocols)) |xml| {
-        lib.addCSourceFile(.{
+        lib.root_module.addCSourceFile(.{
             .file = b.path(b.pathJoin(&.{
                 "deps",
                 "wayland",
