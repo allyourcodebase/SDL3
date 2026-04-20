@@ -25,7 +25,7 @@ const sdl = b.dependency("sdl", .{
     .optimize = optimize,
     .target = target,
 });
-exe.linkLibrary(sdl.artifact("SDL3"));
+exe.root_module.linkLibrary(sdl.artifact("SDL3"));
 ```
 
 Finally, you can use SDL's C API from Zig like this:
