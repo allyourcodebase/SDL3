@@ -1,8 +1,8 @@
 [![CI](https://github.com/Games-By-Mason/sdl_zig/actions/workflows/ci.yaml/badge.svg)](https://github.com/Games-By-Mason/sdl_zig/actions)
 
-# SDL3 Zig
+# SDL Zig
 
-SDL3 ported to the Zig build system.
+SDL ported to the Zig build system.
 
 Supports cross compilation and custom platform configuration.
 
@@ -12,9 +12,11 @@ See `build.zig.zon` for the current Zig version, see releases for support for pr
 
 The versions specified in `build.zig.zon` are split between the package version (before the plus) and the SDL version (after the plus). For example, version `1.0.0+3.4.4` is package version 1.0.0 with support for SDL 3.4.4.
 
+For SDL2, see the SDL2 branch.
+
 # Setup
 
-You can add SDL3 to your project like this by updating `build.zig.zon` from the command line:
+You can add SDL to your project like this by updating `build.zig.zon` from the command line:
 ```sh
 zig fetch --save <url-of-this-repo>
 ```
