@@ -15,8 +15,8 @@
             .so_version = "0.4.12",
         },
         .translate_c = .{
-            .url = "git+https://codeberg.org/ziglang/translate-c/#fdf7dc05aaec07c5c0f0a4bfe060acf7e483f4a3",
-            .hash = "translate_c-0.0.0-Q_BUWvo6BwAVl3qDhMeQNrgCAljvDeGUnwqpnGvB0_YM",
+            .url = "git+https://codeberg.org/ziglang/translate-c/#b98f45c56ae336d86abaa8dc641a95fdbcd27053",
+            .hash = "translate_c-0.0.0-Q_BUWho9BwCfIMG7cbnaSXnz33Vi0iocSzPriKvA3jXn",
         },
         .dbus = .{
             .version = "1.16.0",
