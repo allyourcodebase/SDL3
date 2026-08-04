@@ -201,6 +201,7 @@ pub fn build(
         // Enable GPU support
         .SDL_GPU_D3D11 = 1,
         .SDL_GPU_D3D12 = 1,
+        .SDL_GPU_VULKAN = 1,
 
         // Enable system power support
         .SDL_POWER_WINDOWS = 1,
