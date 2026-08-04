@@ -26,6 +26,11 @@ jobs:
         with:
           version: ${{ matrix.zig-version }}
 
+      - name: Workaround Zig 0.16.0 ZIP unpack failure
+        # https://codeberg.org/ziglang/zig/issues/31964
+        shell: bash
+        run: mkdir -p "${ZIG_GLOBAL_CACHE_DIR}/tmp"
+
       - name: Check Formatting
         if: runner.os != 'Windows' # zig fmt failing on Windows CI, unclear why
         run: zig fmt --ast-check --check .
