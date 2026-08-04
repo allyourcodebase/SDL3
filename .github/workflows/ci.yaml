@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - SDL2
   pull_request:
     branches:
-      - main
+      - SDL2
   workflow_dispatch:
 
 jobs:
