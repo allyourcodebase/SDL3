@@ -14,8 +14,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        zig-version: [0.15.0, 0.16.0, master]
         os: [ubuntu-latest, macos-latest, windows-latest]
+        # Zig 0.15.0 does not work with newer Xcode in latest macOS image.
+        # https://codeberg.org/ziglang/zig/issues/31658
+        include:
+          - zig-version: 0.15.0
+            os: macos-15
+        exclude:
+          - zig-version: 0.15.0
+            os: macos-latest
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.zig-version == 'master' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,6 +38,8 @@ jobs:
 
       - name: Setup Zig
         uses: mlugg/setup-zig@v2
+        with:
+          version: ${{ matrix.zig-version }}
 
       - name: Check Formatting
         run: zig fmt --ast-check --check .
