@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -25,6 +25,11 @@ jobs:
         uses: mlugg/setup-zig@v2
         with:
           version: ${{ matrix.zig-version }}
+
+      - name: Workaround Zig 0.16.0 ZIP unpack failure
+        # https://codeberg.org/ziglang/zig/issues/31964
+        shell: bash
+        run: mkdir -p "${ZIG_GLOBAL_CACHE_DIR}/tmp"
 
       - name: Check Formatting
         if: runner.os != 'Windows' # zig fmt failing on Windows CI, unclear why

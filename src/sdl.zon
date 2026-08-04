@@ -386,6 +386,7 @@
         "video/wayland/SDL_waylandmouse.c",
         "video/wayland/SDL_waylandopengles.c",
         "video/wayland/SDL_waylandshmbuffer.c",
+        "video/wayland/SDL_waylandutil.c",
         "video/wayland/SDL_waylandvideo.c",
         "video/wayland/SDL_waylandvulkan.c",
         "video/wayland/SDL_waylandwindow.c",
