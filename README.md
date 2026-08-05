@@ -3,9 +3,8 @@
 This is a fork of [SDL2](https://www.libsdl.org/), packaged for [Zig](https://ziglang.org).
 Unnecessary files have been deleted, and the build system has been replaced with `build.zig`.
 
-For SDL3, consider:
-* https://github.com/allyourcodebase/SDL3
-* https://github.com/castholm/SDL
+SDL2 is in maintenance mode and will eventually be retired. The newer SDL3 can be found on
+the `main` branch.
 
 ## Getting started
 
@@ -13,7 +12,7 @@ For SDL3, consider:
 
 Fetch SDL and add to your `build.zig.zon` :
 ```bash
-zig fetch --save=SDL git+https://github.com/allyourcodebase/SDL
+zig fetch --save=SDL git+https://github.com/allyourcodebase/SDL#SDL2
 ```
 
 Add this to your `build.zig` :
