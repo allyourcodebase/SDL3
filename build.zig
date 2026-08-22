@@ -60,7 +60,7 @@ pub fn build(b: *std.Build) !void {
         .static => lib.root_module.addCMacro("SDL_STATIC_LIB", "1"),
     }
     lib.root_module.addCMacro("SDL_VENDOR_INFO", std.fmt.comptimePrint("\"{s} {s} (SDL {s})\"", .{
-        "https://github.com/allyourcodebase/SDL3",
+        "https://github.com/allyourcodebase/SDL",
         build_zon.version,
         build_zon.dependencies.sdl.version,
     }));
