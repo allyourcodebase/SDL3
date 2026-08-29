@@ -473,7 +473,6 @@
         "camera/coremedia/SDL_camera_coremedia.m",
         "render/metal/SDL_render_metal.m",
         "gpu/metal/SDL_gpu_metal.m",
-        "joystick/darwin/SDL_iokitjoystick.c",
         "joystick/apple/SDL_mfijoystick.m",
     },
     .emscripten = .{
