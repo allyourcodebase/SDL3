@@ -109,6 +109,7 @@
         "io/SDL_asyncio.c",
         "io/SDL_iostream.c",
         "joystick/controller_type.c",
+        "joystick/darwin/SDL_iokitjoystick.c",
         "joystick/dummy/SDL_sysjoystick.c",
         "joystick/gdk/SDL_gameinputjoystick.cpp",
         "joystick/hidapi/SDL_hidapi_8bitdo.c",
@@ -473,7 +474,6 @@
         "render/metal/SDL_render_metal.m",
         "gpu/metal/SDL_gpu_metal.m",
         "joystick/apple/SDL_mfijoystick.m",
-        "joystick/darwin/SDL_iokitjoystick.c",
     },
     .emscripten = .{
         "filesystem/emscripten/SDL_sysfilesystem.c",
